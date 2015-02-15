@@ -6,7 +6,7 @@ import java.util.UUID;
  * Created by rajabzz on 2/3/15.
  */
 public class StaticGameObject extends GameObject {
-    public static final String NAME = "static";
+    public static final String NAME = "statics";
 
     private int turn;
 
