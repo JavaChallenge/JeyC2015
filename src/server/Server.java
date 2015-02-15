@@ -36,11 +36,11 @@ public class Server {
     private Factory mFactory;
     private TerminalNetwork mTerminalNetwork;
     private GameHandler mGameHandler;
-    TerminalConfig mTerminalConfig;
+    private TerminalConfig mTerminalConfig;
     private UIConfig mUIConfig;
     private ClientConfig mClientConfig;
 
-    ClientInfo[] mClientsInfo;
+    private ClientInfo[] mClientsInfo;
 
     /**
      * Constructor of main server of the framework, which creates and connects server components to the object.
@@ -160,6 +160,14 @@ public class Server {
             mGameHandler.getClientNetwork().queue(i, initialMessages[i]);
         }
         mGameHandler.getClientNetwork().sendAllBlocking();
+    }
+
+    /**
+     * Terminates operations of the server.
+     */
+    public void shutdown() {
+        mGameHandler.shutdown();
+        mTerminalNetwork.terminate();
     }
 
     /**

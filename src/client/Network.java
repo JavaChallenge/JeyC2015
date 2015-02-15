@@ -22,6 +22,12 @@ public class Network {
     private static final String TAG = "Network";
 
     /**
+     * Maximum number of exceptions could occur during connection. After that
+     * client will be closed.
+     */
+    public static final int MAX_NUM_EXCEPTIONS = 50;
+
+    /**
      * Handles incoming messages.
      */
     private Consumer<ReceivedMessage> messageHandler;
@@ -52,6 +58,11 @@ public class Network {
      * Termination flag.
      */
     private boolean terminateFlag;
+
+    /**
+     * Number of exceptions occurred during communication.
+     */
+    private int numOfExceptions;
 
 
     /**
@@ -92,6 +103,10 @@ public class Network {
                 client.close();
                 throw new Exception("First message of the server was not init message.");
             }
+        } catch (IOException e) {
+            Log.i(TAG, "Error while connection to server.", e);
+            handleIOE(e);
+            return;
         } catch (Exception e) {
             Log.i(TAG, "Error while connection to server.", e);
             return;
@@ -122,6 +137,9 @@ public class Network {
             messageHandler.accept(client.get(ReceivedMessage.class));
         } catch (IOException e) {
             Log.i(TAG, "Error receiving the server's message.", e);
+            handleIOE(e);
+        } catch (Exception e) {
+            Log.i(TAG, "Error receiving the server's message.", e);
         }
     }
 
@@ -135,6 +153,7 @@ public class Network {
             client.send(msg);
         } catch (IOException e) {
             Log.i(TAG, "Error while sending client's message.", e);
+            handleIOE(e);
         }
     }
 
@@ -156,6 +175,12 @@ public class Network {
 
     public boolean isTerminated() {
         return terminateFlag;
+    }
+
+    private void handleIOE(IOException e) {
+        numOfExceptions++;
+        if (numOfExceptions > MAX_NUM_EXCEPTIONS)
+            terminate();
     }
 
 }

@@ -24,6 +24,11 @@ import java.util.function.Supplier;
 public class ClientHandler {
 
     /**
+     * Maximum number of exceptions during connection.
+     */
+    public static final int MAX_NUM_EXCEPTIONS = 20;
+
+    /**
      * Logging tag.
      */
     private static String TAG = "ClientHandler";
@@ -63,6 +68,11 @@ public class ClientHandler {
      */
     private final LinkedBlockingDeque<Message> messagesToSend;
 
+    /**
+     * Number of exceptions occurred during communication.
+     */
+    private int numOfExceptions;
+
 
     /**
      * Constructor.
@@ -87,6 +97,8 @@ public class ClientHandler {
      * Sends last queued message.
      */
     public void send() {
+        if (terminateFlag)
+            return;
         try {
             client.send(messagesToSend.remove());
         } catch (NoSuchElementException e) {
@@ -126,6 +138,7 @@ public class ClientHandler {
                 client.close();
         } catch (IOException e) {
             Log.i(TAG, "socket closing failure", e);
+            handleIOE(e);
         } finally {
             synchronized (clientLock) {
                 client = socket;
@@ -159,6 +172,7 @@ public class ClientHandler {
                     Log.i(TAG, "waiting for client interrupted", e);
                 } catch (IOException e) {
                     Log.i(TAG, "message receiving failure", e);
+                    handleIOE(e);
                 }
             }
         };
@@ -170,6 +184,8 @@ public class ClientHandler {
      * @throws IOException if an I/O error occurs.
      */
     private void receive() throws IOException {
+        if (terminateFlag)
+            return;
         lastReceivedMessage = client.get(ReceivedMessage.class);
         synchronized (messageNotifier) {
             messageNotifier.notifyAll();
@@ -246,6 +262,17 @@ public class ClientHandler {
         } catch (IOException e) {
             Log.i(TAG, "Socket closing failure.", e);
         }
+    }
+
+    /**
+     * Handles I/O Exceptions.
+     *
+     * @param e    exception
+     */
+    public void handleIOE(IOException e) {
+        numOfExceptions++;
+        if (numOfExceptions > MAX_NUM_EXCEPTIONS)
+            terminate();
     }
 
 }

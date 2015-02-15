@@ -10,5 +10,7 @@
     <orderEntry type="module" module-name="JGFramework" />
     <orderEntry type="module" module-name="JeyC2015" />
     <orderEntry type="library" name="gson-2.3.1 (2)" level="project" />
+    <orderEntry type="module" module-name="JeyC2015" />
+    <orderEntry type="library" name="gson-2.3.1" level="project" />
   </component>
 </module>

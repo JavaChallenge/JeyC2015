@@ -294,7 +294,7 @@ public class MitosisGameLogic implements GameLogic {
                 continue; // if this block is not movable
             }
             //System.out.println(cell.getId());
-            if (block.isEmpty()){
+            if (block.isEmpty()) {
                 validMoveEvents.add(event);
                 //cell.move(nextPos);
             }
@@ -305,7 +305,10 @@ public class MitosisGameLogic implements GameLogic {
 
             Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
             Position nextPos = cell.getPos().getNextPos(dir);
-            cell.move(nextPos);
+            Block block = map.at(nextPos);
+            if (block.isEmpty()) {
+                cell.move(nextPos);
+            }
         }
 
         // handling gain resource events

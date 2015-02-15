@@ -7,7 +7,6 @@ import core.model.Map;
 import server.core.model.ClientInfo;
 import util.Constants;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
@@ -89,7 +88,7 @@ public class Context {
         map = new Map(this, w, h);
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                Map.BlockStructure block = fs.map.blocks[j][i];
+                Map.BlockStructure block = fs.map.blocks[i][j];
                 int type = block.values[0].intValue();
                 int height = block.values[1].intValue();
                 int resource = block.values[2].intValue();
@@ -158,8 +157,7 @@ public class Context {
         return allCells;
     }*/
 
-    public DynamicGameObject getDynamicObject(String id)
-    {
+    public DynamicGameObject getDynamicObject(String id) {
         return allDynamicObjects.get(id);
     }
 
@@ -168,20 +166,16 @@ public class Context {
         return allCells.get(id);
     }
 
-    public boolean addCell(Cell cell)
-    {
+    public boolean addCell(Cell cell) {
         //checking
-        if(!cell.getType().equals(Constants.GAME_OBJECT_TYPE_CELL))
-        {
+        if (!cell.getType().equals(Constants.GAME_OBJECT_TYPE_CELL)) {
             return false;
         }
-        if(!checkBounds(cell.getPos()))
-        {
+        if (!checkBounds(cell.getPos())) {
             return false;
         }
         Block block = map.at(cell.getPos());
-        if(!block.isEmpty())
-        {
+        if (!block.isEmpty()) {
             return false;
         }
 
@@ -200,28 +194,23 @@ public class Context {
         return true;
     }
 
-    private void calculateRelationVisiblePos(int depthOfField)
-    {
-        if(relatedVisiblePositionsFromOdd.size() != relatedVisiblePositionsFromEven.size())
-        {
+    private void calculateRelationVisiblePos(int depthOfField) {
+        if (relatedVisiblePositionsFromOdd.size() != relatedVisiblePositionsFromEven.size()) {
             System.out.println("error!! calculateRelationVisiblePos!");
         }
-        if( relatedVisiblePositionsFromOdd.size() == 0)
-        {
+        if (relatedVisiblePositionsFromOdd.size() == 0) {
             Position[] positions = new Position[1];
             positions[0] = new Position(0,0);
             relatedVisiblePositionsFromEven.add(positions);
             relatedVisiblePositionsFromOdd.add(positions);
         }
         int currentSize = relatedVisiblePositionsFromOdd.size();
-        if(depthOfField < currentSize)
-        {
+        if (depthOfField < currentSize) {
             return;
         }
         Position startPos = new Position(0,0);
         Direction[] directions = {Direction.SOUTH_WEST, Direction.SOUTH, Direction.SOUTH_EAST, Direction.NORTH_EAST, Direction.NORTH, Direction.NORTH_WEST};
-        for(int i = 0; i < currentSize; i++)
-        {
+        for (int i = 0; i < currentSize; i++) {
             startPos = startPos.getNextPos(Direction.NORTH);
         }
 
@@ -231,8 +220,7 @@ public class Context {
             Position[] evenPositions = new Position[i * 6];
             Position[] oddPositions = new Position[i * 6];
             int index = 0;
-            for(Direction d : directions)
-            {
+            for (Direction d : directions) {
                 for(int j = 0; j < i; j++) {
                     evenPositions[index] = new Position(startPos);
                     oddPositions[index] = new Position(startPos.getX(),-startPos.getY());
@@ -312,25 +300,9 @@ public class Context {
         }*/
     }
 
-    public boolean checkBounds(Position position)
-    {
-        if(position.getX() >= map.getWidth())
-        {
-            return false;
-        }
-        else if(position.getX() < 0)
-        {
-            return false;
-        }
-        else if(position.getY() >= map.getHeight())
-        {
-            return false;
-        }
-        else if(position.getY() < 0)
-        {
-            return false;
-        }
-        return true;
+    public boolean checkBounds(Position position) {
+        return position.getX() >= 0 && position.getX() < map.getWidth()
+                && position.getY() >= 0 && position.getY() < map.getHeight();
     }
 
     public ArrayList<Direction> getShuffledListOfDirections()

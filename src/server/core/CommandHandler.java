@@ -14,8 +14,6 @@ import java.util.function.UnaryOperator;
  */
 public class CommandHandler implements TerminalNetwork.TerminalInterface {
 
-
-
     protected Server mServer;
     private HashMap<String, UnaryOperator<Message>> mHandlers = new HashMap<>();
 
@@ -27,7 +25,7 @@ public class CommandHandler implements TerminalNetwork.TerminalInterface {
 //        defineCommand("pauseGame", this::cmdPauseGame);
 //        defineCommand("resumeGame", this::cmdResumeGame);
 //        defineCommand("endGame", this::cmdEndGame);
-//        defineCommand("exit", this::cmdExit);
+        defineCommand("exit", this::cmdExit);
     }
 
     public void defineCommand(String command, UnaryOperator<Message> handler) {
@@ -85,6 +83,13 @@ public class CommandHandler implements TerminalNetwork.TerminalInterface {
         });
     }
 
+    public Message cmdExit(Message cmd) {
+        mServer.shutdown();
+        System.exit(0);
+        return new Message(TerminalNetwork.REPORT_NAME, new Object[] {
+                new Object[] {"Game exited successfully!"}
+        });
+    }
 
     @Override
     public void putEvent(Event event) {

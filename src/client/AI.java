@@ -18,24 +18,10 @@ import java.util.Random;
  */
 public class AI {
 
-    /**
-     * Game model. Describes current state of the game.
-     */
-    public Model model;
-
-    /**
-     * Constructor.
-     *
-     * @param model    model of the game
-     */
-    public AI(Model model) {
-        this.model = model;
-    }
-
     public void doTurn(World world) {
         long start = System.currentTimeMillis();
         System.out.println(start);
-        System.out.println(model.getTurnRemainingTime());
+//        System.out.println(model.getTurnRemainingTime());
         /*System.out.println(world.getMapSize().getWidth());
         System.out.println(world.getMapSize().getHeight());
         System.out.println(world.getMyId());

@@ -15,7 +15,7 @@ import java.util.Collections;
  * Created by rajabzz on 2/2/15.
  */
 public class Cell extends  DynamicGameObject{
-    public static final int MIN_ENERGY_FOR_MITHOSIS = 50; //TODO can change later
+    public static final int MIN_ENERGY_FOR_MITOSIS = 50; //TODO can change later
 
     private Context ctx;
     //private String id;

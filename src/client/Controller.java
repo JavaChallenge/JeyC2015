@@ -33,6 +33,7 @@ public class Controller {
     private int port;
     private String host;
     private String token;
+    private int retryDelay;
 
     /**
      * Player of the game.
@@ -84,11 +85,13 @@ public class Controller {
         try {
             readClientData();
             model = new Model();
-            client = new AI(model);
+            client = new AI();
             network = new Network(this::handleMessage);
             network.setConnectionData(host, port, token);
-            while (!network.isConnected())
+            while (!network.isConnected()) {
                 network.connect();
+                Thread.sleep(retryDelay);
+            }
             synchronized (terminator) {
                 terminator.wait();
             }
@@ -169,6 +172,7 @@ public class Controller {
         host = details.getAsJsonPrimitive("ip").getAsString();
         port = details.getAsJsonPrimitive("port").getAsInt();
         token = details.getAsJsonPrimitive("token").getAsString();
+        retryDelay = details.getAsJsonPrimitive("retryDelay").getAsInt();
     }
 
 }
