@@ -17,7 +17,6 @@ import java.util.HashMap;
  */
 public interface GameLogic {
 
-    //TODO: Saeed Rajab, change these... common baby...
     /**
      * This method must send initial and necessary values to UI and clients.
      * @return A hashmap that has <code>Token</code> as <strong>key</strong> and a <code>Message</code> as <strong>value</strong>.
@@ -61,6 +60,8 @@ public interface GameLogic {
     public void generateOutputs();
 
     public Message getUIMessage();
+
+    public Message getStatusMessage();
 
     public Message[] getClientMessages();
 

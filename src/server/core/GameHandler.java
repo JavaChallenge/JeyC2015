@@ -212,11 +212,16 @@ public class GameHandler {
                 mGameLogic.simulateEvents(terminalEvents, environmentEvents, clientEvents);
                 mGameLogic.generateOutputs();
                 if (mGameLogic.isGameFinished()) {
+                    Message shutdown = new Message(Message.NAME_SHUTDOWN, new Object[] {});
+                    for (int i = 0; i < mClientsInfo.length; i++) {
+                        mClientNetwork.queue(i, shutdown);
+                    }
                     mLoop.shutdown();
                     mOutputController.shutdown();
                 }
 
                 mOutputController.putMessage(mGameLogic.getUIMessage());
+                mOutputController.putMessage(mGameLogic.getStatusMessage());
 
                 Message[] output = mGameLogic.getClientMessages();
                 for (int i = 0 ; i < output.length; ++i) {
@@ -243,7 +248,7 @@ public class GameHandler {
                         clientEvents[i] = mClientNetwork.getReceivedEvent(i);
                     }
                 }
-                //FIXME: Put a blocking queue for terminal
+
                 BlockingQueue<Event> terminalEventsQueue = new LinkedBlockingQueue<>();
 
                 synchronized (terminalEventsQueue) {

@@ -461,6 +461,15 @@ public class MitosisGameLogic implements GameLogic {
         return mUIMessage;
     }
 
+    public Message getStatusMessage() {
+        Object[] args = new Object[] {new Object()};
+
+
+
+        Message status = new Message(Message.NAME_STATUS, args);
+        return status;
+    }
+
     @Override
     public Message[] getClientMessages() {
         return mClientMessages.toArray(new Message[mClientMessages.size()]);

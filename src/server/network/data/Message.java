@@ -7,6 +7,8 @@ public class Message {
 
     public static final String NAME_TURN = "turn";
     public static final String NAME_INIT = "init";
+    public static final String NAME_STATUS = "status";
+    public static final String NAME_SHUTDOWN = "shutdown";
 
     public String name;
     public Object[] args;
