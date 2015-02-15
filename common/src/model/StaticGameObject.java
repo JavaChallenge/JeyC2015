@@ -1,6 +1,6 @@
-package core.model;
+package model;
 
-import java.util.UUID;
+import model.GameObject;
 
 /**
  * Created by rajabzz on 2/3/15.

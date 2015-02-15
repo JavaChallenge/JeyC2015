@@ -1,8 +1,9 @@
 package core.model;
 
 import core.Context;
-import messages.BlockData;
-import messages.StaticData;
+import data.BlockData;
+import data.StaticData;
+import model.Position;
 import util.Constants;
 import util.UID;
 

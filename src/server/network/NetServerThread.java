@@ -1,5 +1,6 @@
 package server.network;
 
+import network.JsonSocket;
 import util.Log;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
  * {@link java.net.ServerSocket}. When a <code>NetServerThread</code> is ran,
  * it creates a new server socket to listen on that port. When a new client is
  * connected to that port, it passes the client's
- * {@link server.network.JsonSocket} to the specified consumer.
+ * {@link network.JsonSocket} to the specified consumer.
  * <p>
  * The consumer should accept the client and perform necessary operations.
  * <p>

@@ -2,9 +2,9 @@ package test.server.network;
 
 import org.junit.*;
 import org.junit.runners.MethodSorters;
-import server.network.JsonSocket;
+import network.JsonSocket;
 import server.network.UINetwork;
-import server.network.data.Message;
+import network.data.Message;
 
 import java.io.IOException;
 import java.net.SocketException;

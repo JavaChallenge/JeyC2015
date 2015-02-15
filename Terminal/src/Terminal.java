@@ -1,8 +1,7 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import server.network.JsonSocket;
-import server.network.data.Command;
-import server.network.data.Message;
+import network.JsonSocket;
+import network.data.Message;
 
 import java.io.*;
 import java.security.MessageDigest;
@@ -15,6 +14,7 @@ import java.util.StringTokenizer;
  * Created by Saeed on 1/23/2015.
  */
 public class Terminal {
+
     private static final String FILE_PATH = "../JGFramework/Terminal/Resources/ip-port.conf";
 
     private static final String CMD_TYPE_CONNECT = "connect";

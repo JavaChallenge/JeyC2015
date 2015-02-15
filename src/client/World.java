@@ -4,7 +4,7 @@ package client;
 import client.model.Cell;
 import client.model.Map;
 
-import messages.*;
+import data.*;
 import util.Constants;
 
 import java.util.ArrayList;

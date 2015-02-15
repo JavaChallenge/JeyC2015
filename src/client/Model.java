@@ -2,9 +2,9 @@ package client;
 
 import client.model.Map;
 import com.google.gson.Gson;
-import messages.*;
-import server.core.model.Event;
-import server.network.data.Message;
+import data.*;
+import model.Event;
+import network.data.Message;
 import server.network.data.ReceivedMessage;
 import util.Constants;
 

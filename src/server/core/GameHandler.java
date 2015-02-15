@@ -3,10 +3,10 @@ package server.core;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import server.core.model.ClientInfo;
-import server.core.model.Event;
+import model.Event;
 import server.network.ClientNetwork;
 import server.network.UINetwork;
-import server.network.data.Message;
+import network.data.Message;
 import util.Log;
 
 import java.io.BufferedReader;

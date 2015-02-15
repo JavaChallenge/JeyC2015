@@ -1,4 +1,4 @@
-package server.core.model;
+package model;
 
 /**
  * Created by Razi on 12/22/2014.

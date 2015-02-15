@@ -1,6 +1,6 @@
-package messages;
+package data;
 
-import core.model.Position;
+import model.Position;
 
 import java.util.HashMap;
 

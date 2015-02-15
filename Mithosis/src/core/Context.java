@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import core.model.*;
 import core.model.Map;
+import model.*;
 import server.core.model.ClientInfo;
 import util.Constants;
 
@@ -23,8 +24,8 @@ public class Context {
     private Map map;
     private Team[] teams;
 
-    private HashMap<String,DynamicGameObject> allDynamicObjects;
-    private HashMap<String,Cell> allCells;
+    private HashMap<String, DynamicGameObject> allDynamicObjects;
+    private HashMap<String, Cell> allCells;
 
     private ArrayList<Position[]> relatedVisiblePositionsFromOdd;
     private ArrayList<Position[]> relatedVisiblePositionsFromEven;

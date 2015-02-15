@@ -1,5 +1,7 @@
 package server.network;
 
+import network.JsonSocket;
+
 /**
  * This class implements a network server. A <code>NetServer</code> runs a
  * server on the specified port and waits for the clients to be connected,
@@ -74,7 +76,7 @@ public abstract class NetServer {
     /**
      * A method to accept new clients. When a client connects to the port of
      * this <code>NetServer</code>, this method is called, with a reference to
-     * a {@link server.network.JsonSocket} which is connected to the client side
+     * a {@link network.JsonSocket} which is connected to the client side
      * socket. A new thread may be assigned to handle requests of the client.
      * <p>
      * This method is abstract and so it is not implemented in this class.
@@ -85,7 +87,7 @@ public abstract class NetServer {
      * Note that this method must take care of everything that could be happen
      * during communications between client and server.
      *
-     * @param client    a {@link server.network.JsonSocket} which is connected
+     * @param client    a {@link network.JsonSocket} which is connected
      *                  to the client's socket.
      */
     protected abstract void accept(JsonSocket client);

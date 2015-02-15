@@ -1,7 +1,8 @@
 package server.network;
 
-import server.core.model.Event;
-import server.network.data.Message;
+import model.Event;
+import network.data.Message;
+import network.JsonSocket;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,17 +61,17 @@ public class TerminalNetwork extends NetServer {
      * This thread is used by {@link server.network.TerminalNetwork}
      * to handle multiple clients that want to start a terminal.
      * <p>
-     * {@link server.network.TerminalNetwork.TerminalNetworkThread} uses a {@link server.network.JsonSocket}
+     * {@link server.network.TerminalNetwork.TerminalNetworkThread} uses a {@link network.JsonSocket}
      * to get the inputs of a client. The first input is a <code>Token</code>.
      * If user enter a correct <code>Token</code> then terminal actually starts.
      * <p>
-     * Then it converts every input to a {@link server.network.data.Message} class
+     * Then it converts every input to a {@link network.data.Message} class
      * and if the input was a valid one it checks whether this input is command or event.
      * Then it creates the appropriate object and by means of {@link server.network.TerminalNetwork.TerminalInterface}
-     * sends it to {@link server.core.model.Event}.
+     * sends it to {@link model.Event}.
      *
      * @see server.network.NetServer
-     * @see server.network.JsonSocket
+     * @see network.JsonSocket
      */
     class TerminalNetworkThread extends Thread  {
 

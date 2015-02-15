@@ -1,7 +1,7 @@
 package core.model;
 
 import core.Context;
-import core.MitosisGameLogic;
+import model.Position;
 import server.core.model.ClientInfo;
 import util.Constants;
 

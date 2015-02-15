@@ -1,8 +1,8 @@
 package core.model;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import core.Context;
+import model.Position;
 import util.Constants;
 
 import java.io.File;

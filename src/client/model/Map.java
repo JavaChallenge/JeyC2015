@@ -1,9 +1,9 @@
 package client.model;
 
-import core.model.Position;
-import messages.BlockData;
-import messages.MapSize;
-import messages.StaticData;
+import model.Position;
+import data.BlockData;
+import data.MapSize;
+import data.StaticData;
 import util.Constants;
 
 /**

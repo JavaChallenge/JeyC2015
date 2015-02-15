@@ -1,4 +1,4 @@
-package messages;
+package data;
 
 /**
  * Created by Razi on 2/11/2015.

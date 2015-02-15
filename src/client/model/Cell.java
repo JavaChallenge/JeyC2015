@@ -1,9 +1,9 @@
 package client.model;
 
 import client.Model;
-import core.model.Direction;
-import core.model.GameEvent;
-import core.model.Position;
+import model.Direction;
+import model.GameEvent;
+import model.Position;
 
 /**
  * Created by Razi on 2/12/2015.

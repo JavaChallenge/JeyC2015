@@ -2,8 +2,7 @@ package client;
 
 import client.model.Block;
 import client.model.Cell;
-import core.model.Direction;
-import core.model.GameEvent;
+import model.Direction;
 import util.Constants;
 
 import java.util.Random;

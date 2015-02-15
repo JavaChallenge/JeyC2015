@@ -10,7 +10,7 @@ import server.core.model.ClientInfo;
 import server.network.ClientNetwork;
 import server.network.TerminalNetwork;
 import server.network.UINetwork;
-import server.network.data.Message;
+import network.data.Message;
 
 import java.io.*;
 

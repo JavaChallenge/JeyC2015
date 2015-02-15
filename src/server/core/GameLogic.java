@@ -1,13 +1,8 @@
 package server.core;
 
 import server.core.model.ClientInfo;
-import server.core.model.Event;
-import server.network.data.Message;
-
-import java.util.HashMap;
-import java.util.UUID;
-
-import java.util.HashMap;
+import model.Event;
+import network.data.Message;
 
 /**
  * The abstract class representing the main game logic of the user's game.

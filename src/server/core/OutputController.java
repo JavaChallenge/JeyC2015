@@ -2,7 +2,7 @@ package server.core;
 
 import server.exceptions.OutputControllerQueueOverflowException;
 import server.network.UINetwork;
-import server.network.data.Message;
+import network.data.Message;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -58,7 +58,7 @@ public class OutputController implements Runnable {
      *                 or not
      * @param uiNetwork The given instance of {@link server.network.UINetwork UINetwork} class to send data to
      * @param timeInterval The indicated timer tick which triggers
-     *                  {@link server.core.OutputController.UINetworkSender#sendToUINetwork(server.network.data.Message)
+     *                  {@link server.core.OutputController.UINetworkSender#sendToUINetwork(network.data.Message)
      *                  sendToUINetwork(Message)} method
      * @param sendToFile Indicates that a log of output will be saved in the given {@link java.io.File java.io.File} or
      *                   not
@@ -125,7 +125,7 @@ public class OutputController implements Runnable {
     }
 
     /**
-     * Accepts an instance of {@link server.network.data.Message Message} class as an argument, and places it
+     * Accepts an instance of {@link network.data.Message Message} class as an argument, and places it
      * on the queue.
      * <p>
      *     In this method, the given message will be putted in the message queue, only if there's a place on the
@@ -237,9 +237,9 @@ public class OutputController implements Runnable {
          * <p>
          *     This method uses a while loop to save the whole contents of
          *     {@link java.util.concurrent.BlockingQueue BlockingQueue} of
-         *     {@link server.network.data.Message Messages} to the given file.
+         *     {@link network.data.Message Messages} to the given file.
          *     This will stop working only if the close order were sent and there's no more
-         *     {@link server.network.data.Message Messages} on the queue.
+         *     {@link network.data.Message Messages} on the queue.
          * </p>
          */
         @Override
@@ -296,11 +296,11 @@ public class OutputController implements Runnable {
     }
 
     /**
-     * Is responsible for sending the first {@link server.network.data.Message Message} in the queue to the
+     * Is responsible for sending the first {@link network.data.Message Message} in the queue to the
      * {@link server.network.UINetwork UINetwork}.
      * <p>
      *     As the failure in connection and some other issues leaves the
-     *     {@link server.network.UINetwork#sendBlocking(server.network.data.Message) UINetwork.send(Message)} method
+     *     {@link server.network.UINetwork#sendBlocking(network.data.Message) UINetwork.send(Message)} method
      *     blocked, and so causes a thread block, this class runs as an alternative thread to send the messages
      *     in the queue, to the {@link server.network.UINetwork UINetwrok} instance without causing the main
      *     thread of OutputController to sleep.
@@ -316,7 +316,7 @@ public class OutputController implements Runnable {
          * Implemented run method from {@link java.lang.Runnable Runnable} class which sends the first message in the
          * queue to the {@link server.network.UINetwork UINetwork}.
          * <p>
-         *     This method will call the {@link #sendToUINetwork(server.network.data.Message) sendToUINetwork(Message)}
+         *     This method will call the {@link #sendToUINetwork(network.data.Message) sendToUINetwork(Message)}
          *     method with the appropriate message instance.
          *     Every connection made in a separate thread and with a specified timeout.
          *     If the last connection could send the message within the timeout, then this method will take another
@@ -347,7 +347,7 @@ public class OutputController implements Runnable {
         /**
          * This method serves the instance of {@link server.network.UINetwork UINetwork} class with messages.
          * <p>
-         *     This method calls {@link server.network.UINetwork#sendBlocking(server.network.data.Message) send(message)}
+         *     This method calls {@link server.network.UINetwork#sendBlocking(network.data.Message) send(message)}
          *     method on {@link server.network.UINetwork UINetwork} instance in order to show up on UI.
          *     Calling this while the message queue is empty, will put it in the wait mode.
          *     Basically this method will be called by the timer scheduled according to user preferred

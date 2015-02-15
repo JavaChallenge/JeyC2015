@@ -1,4 +1,4 @@
-package server.network;
+package network;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

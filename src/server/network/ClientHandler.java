@@ -1,7 +1,8 @@
 package server.network;
 
-import server.network.data.Message;
+import network.data.Message;
 import server.network.data.ReceivedMessage;
+import network.JsonSocket;
 import util.Log;
 
 import java.io.IOException;

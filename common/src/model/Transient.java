@@ -1,4 +1,6 @@
-package core.model;
+package model;
+
+import model.Position;
 
 import java.util.HashMap;
 

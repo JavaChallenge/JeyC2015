@@ -1,9 +1,6 @@
-package messages;
+package data;
 
-import core.model.Cell;
-import core.model.DynamicGameObject;
-import core.model.GameObject;
-import core.model.Position;
+import model.Position;
 import util.Constants;
 
 import java.util.HashMap;

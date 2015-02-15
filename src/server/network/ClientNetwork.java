@@ -1,12 +1,10 @@
 package server.network;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import server.core.model.Event;
-import server.network.data.Message;
+import model.Event;
+import network.data.Message;
 import server.network.data.ReceivedMessage;
+import network.JsonSocket;
 import util.Log;
 
 import java.util.ArrayList;

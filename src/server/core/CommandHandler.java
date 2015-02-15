@@ -1,9 +1,9 @@
 package server.core;
 
 import server.Server;
-import server.core.model.Event;
+import model.Event;
 import server.network.TerminalNetwork;
-import server.network.data.Message;
+import network.data.Message;
 
 import java.io.IOException;
 import java.util.HashMap;

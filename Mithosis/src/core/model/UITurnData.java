@@ -1,8 +1,8 @@
-package messages;
+package core.model;
 
-import core.model.DynamicGameObject;
-import core.model.StaticGameObject;
-import core.model.Transient;
+import data.DynamicData;
+import data.StaticData;
+import model.Transient;
 
 import java.util.ArrayList;
 

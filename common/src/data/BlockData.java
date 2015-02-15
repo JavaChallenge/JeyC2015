@@ -1,7 +1,6 @@
-package messages;
+package data;
 
-import core.model.Block;
-import core.model.Position;
+import model.Position;
 import util.Constants;
 
 import java.util.HashMap;
@@ -18,7 +17,7 @@ public class BlockData extends StaticData {
 
     public BlockData(String id, int turn, Position position, String type, int height, int resource)
     {
-        super(id, turn,position,type);
+        super(id, turn, position,type);
 
         HashMap<String,Object> other = new HashMap<>();
         other.put(Constants.BLOCK_KEY_RESOURCE, resource);

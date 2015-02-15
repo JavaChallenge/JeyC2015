@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
  * Created by rajabzz on 12/22/14.
  */
 public class Command {
+
     public static final String COMMAND = "command";
 
     public static final int COMMAND_TYPE_HELP = 0;

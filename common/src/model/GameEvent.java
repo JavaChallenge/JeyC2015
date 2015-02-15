@@ -1,6 +1,4 @@
-package core.model;
-
-import server.core.model.Event;
+package model;
 
 /**
  * Created by rajabzz on 2/2/15.

@@ -1,4 +1,4 @@
-package server.network.data;
+package network.data;
 
 /**
  * Created by rajabzz on 12/27/14.
@@ -27,4 +27,5 @@ public class Message {
     public void setArgs(Object[] args) {
         this.args = args;
     }
+
 }

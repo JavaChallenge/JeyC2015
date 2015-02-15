@@ -4,6 +4,7 @@ import java.util.Scanner;
  * Created by Saeed on 1/23/2015.
  */
 public class TerminalApp {
+
     public static void main(String[] args) {
         Terminal terminal = Terminal.getInstance();
 
@@ -15,4 +16,5 @@ public class TerminalApp {
             terminal.handleCommand(command);
         }
     }
+
 }

@@ -1,20 +1,19 @@
 package core.model;
 
 import core.Context;
-import messages.CellData;
-import messages.DynamicData;
+import data.CellData;
+import data.DynamicData;
+import model.Direction;
+import model.Position;
 import util.Constants;
 import util.UID;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Created by rajabzz on 2/2/15.
  */
-public class Cell extends  DynamicGameObject{
+public class Cell extends DynamicGameObject {
     public static final int MIN_ENERGY_FOR_MITOSIS = 50; //TODO can change later
 
     private Context ctx;

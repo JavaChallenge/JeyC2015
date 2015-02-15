@@ -6,8 +6,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import server.network.ClientNetwork;
-import server.network.JsonSocket;
-import server.network.data.Message;
+import network.JsonSocket;
+import network.data.Message;
 import server.network.data.ReceivedMessage;
 
 import java.net.SocketException;

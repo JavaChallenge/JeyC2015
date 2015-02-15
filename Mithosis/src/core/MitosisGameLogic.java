@@ -1,15 +1,15 @@
 package core;
 
 import core.model.*;
-import core.model.Cell;
+import model.*;
 import core.model.Map;
-import messages.*;
+import data.*;
 import util.Constants;
 import server.Server;
 import server.core.GameLogic;
 import server.core.model.ClientInfo;
-import server.core.model.Event;
-import server.network.data.Message;
+import model.Event;
+import network.data.Message;
 
 import java.io.IOException;
 import java.util.*;

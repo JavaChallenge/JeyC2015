@@ -3,10 +3,10 @@ package test.server.network;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import server.core.model.Event;
-import server.network.JsonSocket;
+import model.Event;
+import network.JsonSocket;
 import server.network.TerminalNetwork;
-import server.network.data.Message;
+import network.data.Message;
 
 import java.io.IOException;
 

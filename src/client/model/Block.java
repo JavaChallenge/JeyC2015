@@ -1,7 +1,7 @@
 package client.model;
 
-import core.model.Position;
-import messages.BlockData;
+import model.Position;
+import data.BlockData;
 
 /**
  * Created by Razi on 2/13/2015.

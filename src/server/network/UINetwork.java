@@ -1,6 +1,7 @@
 package server.network;
 
-import server.network.data.Message;
+import network.data.Message;
+import network.JsonSocket;
 import util.Log;
 
 import java.io.IOException;
@@ -103,7 +104,7 @@ public final class UINetwork extends NetServer {
     /**
      * Creates a new thread to verify the client by taking a token.
      *
-     * @param client    a {@link server.network.JsonSocket} which is connected
+     * @param client    a {@link network.JsonSocket} which is connected
      * @see server.network.NetServer#accept
      */
     @Override
