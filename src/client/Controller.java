@@ -108,10 +108,20 @@ public class Controller {
      * @param msg    incoming message
      */
     private void handleMessage(ReceivedMessage msg) {
-        if (msg.name.equals("turn"))
-            handleTurnMessage(msg);
-        else if (msg.name.equals("init"))
-            handleInitMessage(msg);
+        switch (msg.name) {
+            case "turn":
+                handleTurnMessage(msg);
+                break;
+            case "init":
+                handleInitMessage(msg);
+                break;
+            case "shutdown":
+                handleShutdownMessage(msg);
+                break;
+            default:
+                Log.i(TAG, "Undefined message received. " + msg.name);
+                break;
+        }
     }
 
     /**
@@ -132,6 +142,16 @@ public class Controller {
     private void handleTurnMessage(ReceivedMessage msg) {
         model.handleTurnMessage(msg);
         doTurn();
+    }
+
+    /**
+     * Handles shutdown message.
+     *
+     * @param msg    shutdown message
+     */
+    private void handleShutdownMessage(ReceivedMessage msg) {
+        network.terminate();
+        System.exit(0);
     }
 
     /**
