@@ -6,6 +6,7 @@ import core.model.*;
 import core.model.Map;
 import model.*;
 import server.core.model.ClientInfo;
+import util.Constants;
 import util.ServerConstants;
 
 import java.io.*;
@@ -94,6 +95,8 @@ public class Context {
                 int height = block.values[1].intValue();
                 int resource = block.values[2].intValue();
                 boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
+                if (type != 3)
+                    resource = 0;
                 Block b = new Block(this, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
                 map.set(j, i, b);
             }
@@ -108,6 +111,8 @@ public class Context {
                 int dof = instance.values[1].intValue();
                 int energy = instance.values[2].intValue();
                 int gainRate = instance.values[3].intValue();
+                dof = Constants.CELL_DEPTH_OF_FIELD;
+                gainRate = Constants.CELL_GAIN_RATE;
                 Cell cell = new Cell(this, new Position(x, y), teamID, dof, energy, gainRate);
                 addCell(cell);
             }

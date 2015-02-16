@@ -95,6 +95,11 @@ public class Cell extends DynamicGameObject {
             {
                 continue;
             }
+            int currentHeight = ctx.getMap().at(position).getHeight();
+            int nextHeight = ctx.getMap().at(tPos).getHeight();
+            if (nextHeight > currentHeight + 1) {
+                continue;
+            }
             if(ctx.getMap().at(tPos).isEmpty())
             {
                 secondCellPos = tPos;
@@ -104,11 +109,7 @@ public class Cell extends DynamicGameObject {
         if(secondCellPos == null) {
             return false;
         }
-        int currentHeight = ctx.getMap().at(position).getHeight();
-        int nextHeight = ctx.getMap().at(secondCellPos).getHeight();
-        if (nextHeight > currentHeight + 1) {
-            return false;
-        }
+
         int energy = ServerConstants.CELL_MIN_ENERGY_FOR_MITOSIS;
         int secondEnergy = energy / 2;
         setEnergy(energy - secondEnergy);

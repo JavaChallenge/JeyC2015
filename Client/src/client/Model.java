@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class Model {
 
-    private long turnTimeout = 300;
+    private long turnTimeout = 400;
     private long turnStartTime;
     private ArrayList<Event> events;
     private World world;

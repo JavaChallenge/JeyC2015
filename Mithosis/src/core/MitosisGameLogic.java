@@ -242,9 +242,7 @@ public class MitosisGameLogic implements GameLogic {
             }
 
             Collection<GameEvent> currentTurnEventsList = gameObjectEvents.values();
-            GameEvent[] currentTurnEvents = currentTurnEventsList.toArray(new GameEvent[currentTurnEventsList.size()]);
-
-            for (GameEvent event: currentTurnEvents) {
+            for (GameEvent event: currentTurnEventsList) {
                 switch (event.getType()) {
                     case GameEvent.TYPE_MOVE:
                         moveEvents.add(event);
