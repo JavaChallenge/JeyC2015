@@ -1,4 +1,4 @@
-package test.server.network;
+package network;
 
 import org.junit.*;
 import org.junit.runners.MethodSorters;

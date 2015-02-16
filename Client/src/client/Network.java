@@ -2,7 +2,7 @@ package client;
 
 import network.JsonSocket;
 import network.data.Message;
-import server.network.data.ReceivedMessage;
+import network.data.ReceivedMessage;
 import util.Log;
 
 import java.io.IOException;

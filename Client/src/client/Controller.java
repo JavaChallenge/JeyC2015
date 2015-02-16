@@ -2,7 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import server.network.data.ReceivedMessage;
+import network.data.ReceivedMessage;
 import util.Log;
 
 import java.io.IOException;

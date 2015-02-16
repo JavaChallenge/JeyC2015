@@ -1,4 +1,4 @@
-package server.network.data;
+package network.data;
 
 import com.google.gson.JsonArray;
 

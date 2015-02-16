@@ -1,7 +1,7 @@
 package server.network;
 
 import network.data.Message;
-import server.network.data.ReceivedMessage;
+import network.data.ReceivedMessage;
 import network.JsonSocket;
 import util.Log;
 

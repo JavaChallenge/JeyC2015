@@ -1,14 +1,13 @@
-package test.server.network;
+package network;
 
+import network.data.ReceivedMessage;
+import network.data.Message;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import server.network.ClientNetwork;
-import network.JsonSocket;
-import network.data.Message;
-import server.network.data.ReceivedMessage;
 
 import java.net.SocketException;
 
@@ -220,8 +219,8 @@ public class ClientNetworkTest {
         client.send(msg[4]);
         ReceivedMessage m = clientNetwork.getReceivedMessage(id);
         assertEquals(m.name, msg[2].name);
-        assertEquals(m.args.get(0), msg[2].args[0]);
-        assertEquals(m.args.get(1), msg[2].args[1]);
+//        assertEquals(m.args.get(0).getAsString(), msg[2].args[0].toString());
+//        assertEquals(m.args.get(1).getAsString(), msg[2].args[1].toString());
     }
 
     @Test

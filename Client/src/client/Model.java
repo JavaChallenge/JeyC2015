@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import data.*;
 import model.Event;
 import network.data.Message;
-import server.network.data.ReceivedMessage;
+import network.data.ReceivedMessage;
 import util.ServerConstants;
 
 import java.util.ArrayList;

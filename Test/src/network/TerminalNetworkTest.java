@@ -1,4 +1,4 @@
-package test.server.network;
+package network;
 
 import org.junit.After;
 import org.junit.Before;

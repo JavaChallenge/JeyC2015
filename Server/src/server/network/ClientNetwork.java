@@ -3,7 +3,7 @@ package server.network;
 import com.google.gson.Gson;
 import model.Event;
 import network.data.Message;
-import server.network.data.ReceivedMessage;
+import network.data.ReceivedMessage;
 import network.JsonSocket;
 import util.Log;
 
