@@ -6,7 +6,7 @@ import data.*;
 import model.Event;
 import network.data.Message;
 import server.network.data.ReceivedMessage;
-import util.Constants;
+import util.ServerConstants;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class Model {
 
-    private long turnTimeout = 400;
+    private long turnTimeout = 300;
     private long turnStartTime;
     private ArrayList<Event> events;
     private World world;
@@ -53,7 +53,7 @@ public class Model {
         world.clearDynamics();
         for(DynamicData d : clientTurnData.getDynamics())
         {
-            if(d.getType().equals(Constants.GAME_OBJECT_TYPE_CELL))
+            if(d.getType().equals(ServerConstants.GAME_OBJECT_TYPE_CELL))
             {
                 CellData cd = new CellData(d);
                 world.addCell(cd);

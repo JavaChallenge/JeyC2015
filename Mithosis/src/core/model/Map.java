@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import core.Context;
 import model.Position;
 import util.Constants;
+import util.ServerConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class Map {
         public String name;
         public String[] keys;
         public Number[] defaults;
-        public String[] coloring;
+        public String coloring;
         public ObjectStructure[] instances;
     }
 
@@ -42,7 +43,7 @@ public class Map {
         public int width, height;
         public String[] keys;
         public Number[] defaults;
-        public String[] coloring;
+        public String coloring;
         public BlockStructure[][] blocks;
     }
 
@@ -55,15 +56,15 @@ public class Map {
 
 
         String[] types = {
-                Constants.BLOCK_TYPE_NONE,
-                Constants.BLOCK_TYPE_NORMAL,
-                Constants.BLOCK_TYPE_MITOSIS,
-                Constants.BLOCK_TYPE_RESOURCE,
-                Constants.BLOCK_TYPE_IMPASSABLE
+                ServerConstants.BLOCK_TYPE_NONE,
+                ServerConstants.BLOCK_TYPE_NORMAL,
+                ServerConstants.BLOCK_TYPE_MITOSIS,
+                ServerConstants.BLOCK_TYPE_RESOURCE,
+                ServerConstants.BLOCK_TYPE_IMPASSABLE
         };
 
         File file = new File(dir);
-        String json = new String(Files.readAllBytes(file.toPath()), Constants.MAP_FILE_ENCODING);
+        String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
         System.out.println(json);
         FileStructure fs = new Gson().fromJson(json, FileStructure.class);
 
@@ -76,8 +77,8 @@ public class Map {
                 int type = block.values[0].intValue();
                 int height = block.values[1].intValue();
                 int resource = block.values[2].intValue();
-                boolean isMovable = !types[type].equals(Constants.BLOCK_TYPE_IMPASSABLE);
-                Block b = new Block(ctx, Constants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
+                boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
+                Block b = new Block(ctx, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
                 map.set(j, i, b);
             }
         }
@@ -91,6 +92,8 @@ public class Map {
                 int dof = instance.values[1].intValue();
                 int energy = instance.values[2].intValue();
                 int gainRate = instance.values[3].intValue();
+//                dof = Constants.CELL_DEPTH_OF_FIELD;
+//                gainRate = Constants.CELL_GAIN_RATE;
                 Cell cell = new Cell(ctx, new Position(x, y), teamID, dof, energy, gainRate);
                 ctx.addCell(cell);
             }

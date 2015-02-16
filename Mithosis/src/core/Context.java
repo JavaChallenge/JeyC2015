@@ -6,7 +6,7 @@ import core.model.*;
 import core.model.Map;
 import model.*;
 import server.core.model.ClientInfo;
-import util.Constants;
+import util.ServerConstants;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -72,15 +72,15 @@ public class Context {
 
     private void loadMap(String dir) throws IOException {
         String[] types = {
-                Constants.BLOCK_TYPE_NONE,
-                Constants.BLOCK_TYPE_NORMAL,
-                Constants.BLOCK_TYPE_MITOSIS,
-                Constants.BLOCK_TYPE_RESOURCE,
-                Constants.BLOCK_TYPE_IMPASSABLE
+                ServerConstants.BLOCK_TYPE_NONE,
+                ServerConstants.BLOCK_TYPE_NORMAL,
+                ServerConstants.BLOCK_TYPE_MITOSIS,
+                ServerConstants.BLOCK_TYPE_RESOURCE,
+                ServerConstants.BLOCK_TYPE_IMPASSABLE
         };
 
         File file = new File(dir);
-        String json = new String(Files.readAllBytes(file.toPath()), Constants.MAP_FILE_ENCODING);
+        String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
         //System.out.println(json);
         Map.FileStructure fs = new Gson().fromJson(json, Map.FileStructure.class);
 
@@ -93,8 +93,8 @@ public class Context {
                 int type = block.values[0].intValue();
                 int height = block.values[1].intValue();
                 int resource = block.values[2].intValue();
-                boolean isMovable = !types[type].equals(Constants.BLOCK_TYPE_IMPASSABLE);
-                Block b = new Block(this, Constants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
+                boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
+                Block b = new Block(this, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
                 map.set(j, i, b);
             }
         }
@@ -169,7 +169,7 @@ public class Context {
 
     public boolean addCell(Cell cell) {
         //checking
-        if (!cell.getType().equals(Constants.GAME_OBJECT_TYPE_CELL)) {
+        if (!cell.getType().equals(ServerConstants.GAME_OBJECT_TYPE_CELL)) {
             return false;
         }
         if (!checkBounds(cell.getPos())) {

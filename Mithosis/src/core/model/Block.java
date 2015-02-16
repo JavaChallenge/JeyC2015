@@ -4,7 +4,7 @@ import core.Context;
 import data.BlockData;
 import data.StaticData;
 import model.Position;
-import util.Constants;
+import util.ServerConstants;
 import util.UID;
 
 public class Block {
@@ -25,11 +25,11 @@ public class Block {
 
 
     public Block(Context ctx, int turn, int x, int y) {
-        this(ctx, turn, x, y, 0, 0, Constants.BLOCK_TYPE_NONE, true);
+        this(ctx, turn, x, y, 0, 0, ServerConstants.BLOCK_TYPE_NONE, true);
     }
 
     public Block(Context ctx, int turn, int x, int y, int height, int resource) {
-        this(ctx, turn, x, y, height, resource, Constants.BLOCK_TYPE_NONE, true);
+        this(ctx, turn, x, y, height, resource, ServerConstants.BLOCK_TYPE_NONE, true);
     }
 
     public Block(Context ctx, int turn, int x, int y, int height, int resource, String type) {

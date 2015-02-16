@@ -5,7 +5,7 @@ import client.model.Cell;
 import client.model.Map;
 
 import data.*;
-import util.Constants;
+import util.ServerConstants;
 
 import java.util.ArrayList;
 
@@ -132,11 +132,11 @@ public class World {
     public void setStaticChange(StaticData s) {
         switch (s.getType())
         {
-            case Constants.BLOCK_TYPE_NONE:
-            case Constants.BLOCK_TYPE_NORMAL:
-            case Constants.BLOCK_TYPE_MITOSIS:
-            case Constants.BLOCK_TYPE_RESOURCE:
-            case Constants.BLOCK_TYPE_IMPASSABLE:
+            case ServerConstants.BLOCK_TYPE_NONE:
+            case ServerConstants.BLOCK_TYPE_NORMAL:
+            case ServerConstants.BLOCK_TYPE_MITOSIS:
+            case ServerConstants.BLOCK_TYPE_RESOURCE:
+            case ServerConstants.BLOCK_TYPE_IMPASSABLE:
                 BlockData blockData = new BlockData(s);
                 map.setChange(blockData);
                 break;

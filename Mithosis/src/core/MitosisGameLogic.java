@@ -4,7 +4,7 @@ import core.model.*;
 import model.*;
 import core.model.Map;
 import data.*;
-import util.Constants;
+import util.ServerConstants;
 import server.Server;
 import server.core.GameLogic;
 import server.core.model.ClientInfo;
@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class MitosisGameLogic implements GameLogic {
 
-    private final long GAME_LONG_TIME_TURN = 100; //TODO can change
+    private final long GAME_LONG_TIME_TURN = 500;
 
     private static final String RESOURCE_PATH_CLIENTS = "resources/mitosis/clients.conf";
 
@@ -43,7 +43,7 @@ public class MitosisGameLogic implements GameLogic {
     public MitosisGameLogic(String[] options) throws IOException {
         super();
 
-        ctx = new Context(Constants.TURN_INIT, options[0], RESOURCE_PATH_CLIENTS);
+        ctx = new Context(ServerConstants.TURN_INIT, options[0], RESOURCE_PATH_CLIENTS);
 
         Map map = ctx.getMap();
 
@@ -59,7 +59,7 @@ public class MitosisGameLogic implements GameLogic {
         }
 
         ArrayList<String> viewsList = (ArrayList<String>) teamsList.clone();
-        viewsList.add(Constants.VIEW_GLOBAL);
+        viewsList.add(ServerConstants.VIEW_GLOBAL);
 
         Map map = ctx.getMap();
 
@@ -74,14 +74,14 @@ public class MitosisGameLogic implements GameLogic {
             for (int col = 0; col < width; col++) {
                 HashMap<String, Object> blockMap = new HashMap<>();
                 Block block = map.at(col, row);
-                blockMap.put(Constants.GAME_OBJECT_KEY_ID, block.getId());
-                blockMap.put(Constants.GAME_OBJECT_KEY_TYPE, Constants.BLOCK_TYPE_NONE);
-                blockMap.put(Constants.GAME_OBJECT_KEY_TURN, Constants.TURN_WORLD_CREATION);
-                blockMap.put(Constants.GAME_OBJECT_KEY_POSITION, new Position(block.getX(), block.getY()));
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_ID, block.getId());
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TYPE, ServerConstants.BLOCK_TYPE_NONE);
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TURN, ServerConstants.TURN_WORLD_CREATION);
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_POSITION, new Position(block.getX(), block.getY()));
                 HashMap<String,Object> otherDict = new HashMap<>();
-                otherDict.put(Constants.BLOCK_KEY_HEIGHT, 0);
-                otherDict.put(Constants.BLOCK_KEY_RESOURCE, 0);
-                blockMap.put(Constants.GAME_OBJECT_KEY_OTHER, otherDict);
+                otherDict.put(ServerConstants.BLOCK_KEY_HEIGHT, 0);
+                otherDict.put(ServerConstants.BLOCK_KEY_RESOURCE, 0);
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_OTHER, otherDict);
                 unknownMap.add(blockMap);
             }
         }
@@ -96,10 +96,10 @@ public class MitosisGameLogic implements GameLogic {
             TeamInfo teamInfo = new TeamInfo(ctx.getClientsInfo()[t].getName(), ctx.getClientsInfo()[t].getID());
 
             HashMap<String, Object> info = new HashMap<>();
-            info.put(Constants.INFO_KEY_TURN, ctx.getTurn());
-            info.put(Constants.INFO_KEY_TEAMS, teamsList);
-            info.put(Constants.INFO_KEY_YOUR_INFO, teamInfo);
-            info.put(Constants.INFO_KEY_MAPSIZE, mapSize);
+            info.put(ServerConstants.INFO_KEY_TURN, ctx.getTurn());
+            info.put(ServerConstants.INFO_KEY_TEAMS, teamsList);
+            info.put(ServerConstants.INFO_KEY_YOUR_INFO, teamInfo);
+            info.put(ServerConstants.INFO_KEY_MAP_SIZE, mapSize);
 
 
             //make static diff
@@ -117,10 +117,10 @@ public class MitosisGameLogic implements GameLogic {
 
         //make info
         HashMap<String, Object> info = new HashMap<>();
-        info.put(Constants.INFO_KEY_TURN, ctx.getTurn());
-        info.put(Constants.INFO_KEY_TEAMS, teamsList);
-        info.put(Constants.INFO_KEY_VIEWS, viewsList);
-        info.put(Constants.INFO_KEY_MAPSIZE, mapSize);
+        info.put(ServerConstants.INFO_KEY_TURN, ctx.getTurn());
+        info.put(ServerConstants.INFO_KEY_TEAMS, teamsList);
+        info.put(ServerConstants.INFO_KEY_VIEWS, viewsList);
+        info.put(ServerConstants.INFO_KEY_MAP_SIZE, mapSize);
 
         //make map
             // map is ready
@@ -132,7 +132,7 @@ public class MitosisGameLogic implements GameLogic {
             for (int t = 0; t < mTeams.length; t++)
             {
                 HashMap<String,Object> viewDif = new HashMap<>();
-                viewDif.put(Constants.VIEW,"team" + t);
+                viewDif.put(ServerConstants.VIEW,"team" + t);
 
                 //calculate static diff for each team
                 ArrayList<StaticGameObject> staticDiff = new ArrayList<>();
@@ -146,7 +146,7 @@ public class MitosisGameLogic implements GameLogic {
             //Generate Global diff
             {
                 HashMap<String, Object> viewDif = new HashMap<>();
-                viewDif.put(Constants.VIEW, Constants.VIEW_GLOBAL);
+                viewDif.put(ServerConstants.VIEW, ServerConstants.VIEW_GLOBAL);
 
                 //calculate static diff for global view
                 ArrayList<StaticData> staticDiff = new ArrayList<>();
@@ -267,7 +267,7 @@ public class MitosisGameLogic implements GameLogic {
             if (cell == null) continue;
 
             Block block = map.at(cell.getPos());
-            if(!block.getType().equals(Constants.BLOCK_TYPE_MITOSIS))
+            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_MITOSIS))
             {
                 continue;
             }
@@ -318,7 +318,7 @@ public class MitosisGameLogic implements GameLogic {
             if (cell == null) continue;
 
             Block block = map.at(cell.getPos());
-            if(!block.getType().equals(Constants.BLOCK_TYPE_RESOURCE))
+            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_RESOURCE))
             {
                 continue;
             }
@@ -446,7 +446,7 @@ public class MitosisGameLogic implements GameLogic {
             }
         }
 
-        uiTurnData.setView( Constants.VIEW_GLOBAL);
+        uiTurnData.setView( ServerConstants.VIEW_GLOBAL);
         uiTurnData.setDynamics(dynamics);
         uiTurnData.setStatics(statics);
         uiTurnData.setTransients(transients);

@@ -43,7 +43,7 @@ public class GameHandler {
     private static final String RESOURCE_PATH_OUTPUT_HANDLER = "resources/game_handler/output_handler.conf";
     private static final String RESOURCE_PATH_TURN_TIMEOUT = "resources/game_handler/turn_timeout.conf";
     private final long GAME_LOGIC_SIMULATE_TIMEOUT;
-    private final long GAME_LOGIC_TURN_TIMEOUT = 1000;
+    private final long GAME_LOGIC_TURN_TIMEOUT = 400;
     private final long CLIENT_RESPONSE_TIME;
 
     private ClientNetwork mClientNetwork;

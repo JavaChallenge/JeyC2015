@@ -6,6 +6,7 @@ import data.DynamicData;
 import model.Direction;
 import model.Position;
 import util.Constants;
+import util.ServerConstants;
 import util.UID;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Cell extends DynamicGameObject {
         super(teamId);
         this.ctx = ctx;
         id = UID.getUID();
-        this.type = Constants.GAME_OBJECT_TYPE_CELL;
+        this.type = ServerConstants.GAME_OBJECT_TYPE_CELL;
         this.position = pos;
         depthOfField = dof;
         this.energy = energy;
@@ -81,6 +82,10 @@ public class Cell extends DynamicGameObject {
 
     public boolean mitosis() {
         //System.out.println("mitosis start");
+        if(energy < ServerConstants.CELL_MIN_ENERGY_FOR_MITOSIS)
+        {
+            return false;
+        }
         Position secondCellPos = null;
         ArrayList<Direction> directions = ctx.getShuffledListOfDirections();
         for(Direction d : directions)
@@ -96,10 +101,15 @@ public class Cell extends DynamicGameObject {
                 break;
             }
         }
-        if(secondCellPos == null)
-        {
+        if(secondCellPos == null) {
             return false;
         }
+        int currentHeight = ctx.getMap().at(position).getHeight();
+        int nextHeight = ctx.getMap().at(secondCellPos).getHeight();
+        if (nextHeight > currentHeight + 1) {
+            return false;
+        }
+        int energy = ServerConstants.CELL_MIN_ENERGY_FOR_MITOSIS;
         int secondEnergy = energy / 2;
         setEnergy(energy - secondEnergy);
         Cell newCell = new Cell
@@ -147,7 +157,7 @@ public class Cell extends DynamicGameObject {
         //System.out.println("gain start");
         //System.out.println(ctx.getMap().at(position).getResource());
         //System.out.println(energy);
-        if(energy >= Constants.CELL_MAX_ENERGY)
+        if(energy >= ServerConstants.CELL_MAX_ENERGY)
         {
             return false;
         }
@@ -161,9 +171,9 @@ public class Cell extends DynamicGameObject {
         if( blockResource < gainRate) {
             gain = blockResource;
         }
-        else if(gainRate + blockResource > Constants.CELL_MAX_ENERGY)
+        else if(gainRate + blockResource > ServerConstants.CELL_MAX_ENERGY)
         {
-            gain = Constants.CELL_MAX_ENERGY - energy;
+            gain = ServerConstants.CELL_MAX_ENERGY - energy;
         }
         else{
             gain = gainRate;

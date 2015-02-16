@@ -3,7 +3,7 @@ package client;
 import client.model.Block;
 import client.model.Cell;
 import model.Direction;
-import util.Constants;
+import util.ServerConstants;
 
 import java.util.Random;
 
@@ -32,13 +32,13 @@ public class AI {
         for(Cell c : world.getMyCells())
         {
             Block block = world.getMap().at(c.getPos());
-            if(c.getEnergy() >= Constants.CELL_MIN_ENERGY_FOR_MITOSIS && block.getType().equals(Constants.BLOCK_TYPE_MITOSIS))
+            if(c.getEnergy() >= ServerConstants.CELL_MIN_ENERGY_FOR_MITOSIS && block.getType().equals(ServerConstants.BLOCK_TYPE_MITOSIS))
             {
                 //System.out.println("mitosis");
                 //System.out.println(c.getEnergy());
                 c.mitosis();
             }
-            else if(c.getEnergy() < Constants.CELL_MAX_ENERGY && block.getResource() > 0)
+            else if(c.getEnergy() < ServerConstants.CELL_MAX_ENERGY && block.getResource() > 0)
             {
                 //System.out.println("gain");
                 //System.out.println(block.getResource());

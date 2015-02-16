@@ -4,7 +4,7 @@ import model.Position;
 import data.BlockData;
 import data.MapSize;
 import data.StaticData;
-import util.Constants;
+import util.ServerConstants;
 
 /**
  * Created by Razi on 2/13/2015.
@@ -48,11 +48,11 @@ public class Map {
     {
         switch (type)
         {
-            case Constants.BLOCK_TYPE_NONE:
-            case Constants.BLOCK_TYPE_NORMAL:
-            case Constants.BLOCK_TYPE_MITOSIS:
-            case Constants.BLOCK_TYPE_RESOURCE:
-            case Constants.BLOCK_TYPE_IMPASSABLE:
+            case ServerConstants.BLOCK_TYPE_NONE:
+            case ServerConstants.BLOCK_TYPE_NORMAL:
+            case ServerConstants.BLOCK_TYPE_MITOSIS:
+            case ServerConstants.BLOCK_TYPE_RESOURCE:
+            case ServerConstants.BLOCK_TYPE_IMPASSABLE:
                 return true;
             default:
                 //nothing yet !

@@ -1,7 +1,7 @@
 package data;
 
 import model.Position;
-import util.Constants;
+import util.ServerConstants;
 
 import java.util.HashMap;
 
@@ -20,8 +20,8 @@ public class BlockData extends StaticData {
         super(id, turn, position,type);
 
         HashMap<String,Object> other = new HashMap<>();
-        other.put(Constants.BLOCK_KEY_RESOURCE, resource);
-        other.put(Constants.BLOCK_KEY_HEIGHT, height);
+        other.put(ServerConstants.BLOCK_KEY_RESOURCE, resource);
+        other.put(ServerConstants.BLOCK_KEY_HEIGHT, height);
         this.other = other;
 
         /*other = new Other();
@@ -35,17 +35,17 @@ public class BlockData extends StaticData {
     }
 
     public void setHeight(int height) {
-        other.put(Constants.BLOCK_KEY_HEIGHT, height);
+        other.put(ServerConstants.BLOCK_KEY_HEIGHT, height);
     }
     public void setResource(int resource) {
-        other.put(Constants.BLOCK_KEY_RESOURCE, resource);
+        other.put(ServerConstants.BLOCK_KEY_RESOURCE, resource);
     }
 
     public int getHeight() {
-        return ((Double)other.get(Constants.BLOCK_KEY_HEIGHT)).intValue();
+        return ((Double)other.get(ServerConstants.BLOCK_KEY_HEIGHT)).intValue();
     }
     public int getResource() {
-        return ((Double)other.get(Constants.BLOCK_KEY_RESOURCE)).intValue();
+        return ((Double)other.get(ServerConstants.BLOCK_KEY_RESOURCE)).intValue();
     }
 
     /*public void setHeight(int height) {

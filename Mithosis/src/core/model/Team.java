@@ -3,7 +3,7 @@ package core.model;
 import core.Context;
 import model.Position;
 import server.core.model.ClientInfo;
-import util.Constants;
+import util.ServerConstants;
 
 import java.util.ArrayList;
 
@@ -33,7 +33,7 @@ public class Team {
         viewHistory = new int[map.getHeight()][map.getWidth()];
         for (int row = 0; row < map.getHeight(); row++) {
             for (int col = 0; col < map.getWidth(); col++) {
-                viewHistory[row][col] = Constants.TURN_TEAM_VIEW_HISTORY_DEFAULT;
+                viewHistory[row][col] = ServerConstants.TURN_TEAM_VIEW_HISTORY_DEFAULT;
                 /*Block block = map.getBlocks()[row][col];
                 if(!block.isEmpty()) {
                     Cell c = block.getCell();
