@@ -64,4 +64,19 @@ public class Cell {
     public int getEnergy() {
         return mEnergy;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Cell) {
+            Cell c = (Cell) o;
+            return mPos.equals(c.mPos);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return mPos.hashCode();
+    }
+
 }
