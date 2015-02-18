@@ -205,7 +205,7 @@ public class ClientNetwork extends NetServer {
      * @return last valid message or <code>null</code> if there is no valid msg
      * @see {@link #defineClient}
      */
-    public ReceivedMessage[] getReceivedMessage(int clientID) {
+    public ReceivedMessage[] getReceivedMessages(int clientID) {
         return mClients.get(clientID).getReceivedMessages();
     }
 
@@ -214,10 +214,10 @@ public class ClientNetwork extends NetServer {
      *
      * @param clientID    ID of the client
      * @return last valid event or <code>null</code> if there is no valid event
-     * @see {@link #getReceivedMessage}
+     * @see {@link #getReceivedMessages}
      */
     public Event[] getReceivedEvents(int clientID) {
-        ReceivedMessage[] messages = getReceivedMessage(clientID);
+        ReceivedMessage[] messages = getReceivedMessages(clientID);
         ArrayList<Event> allEvents = new ArrayList<>();
         for (ReceivedMessage msg : messages) {
             try {

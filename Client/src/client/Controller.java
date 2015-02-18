@@ -62,18 +62,11 @@ public class Controller {
     private String settingsFile;
 
     /**
-     * Timer used to limit execution of {@link AI#doTurn}.
-     */
-    private Timer timer;
-
-
-    /**
      * Constructor.
      *
      * @param settingsFile    name of the file which contains connection details
      */
     public Controller(String settingsFile) {
-        timer = new Timer();
         terminator = new Object();
         this.settingsFile = settingsFile;
     }
