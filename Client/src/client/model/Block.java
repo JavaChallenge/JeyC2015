@@ -7,16 +7,15 @@ import data.BlockData;
  * Created by Razi on 2/13/2015.
  */
 public class Block {
+
     private Position pos;
     private int height;
     private int resource;
     private String type;
     private String id;
     private int turn;
-    //private Cell cell;
 
-    Block(BlockData blockData)
-    {
+    Block(BlockData blockData) {
         this.pos = blockData.getPosition();
         this.height = blockData.getHeight();
         this.resource = blockData.getResource();
@@ -57,4 +56,19 @@ public class Block {
     public int getTurn() {
         return turn;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Block) {
+            Block b = (Block) o;
+            return pos.equals(b.pos);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return pos.hashCode();
+    }
+
 }
