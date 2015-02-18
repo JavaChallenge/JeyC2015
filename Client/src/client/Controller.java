@@ -38,7 +38,7 @@ public class Controller {
     /**
      * Player of the game.
      */
-    private AI client;
+    private AI ai;
 
     /**
      * Model of the game.
@@ -84,9 +84,9 @@ public class Controller {
     public void start() {
         try {
             readClientData();
-            model = new Model();
-            client = new AI();
             network = new Network(this::handleMessage);
+            model = new Model(network::send);
+            ai = new AI();
             network.setConnectionData(host, port, token);
             while (!network.isConnected()) {
                 network.connect();
@@ -158,25 +158,12 @@ public class Controller {
      * Starts {@link AI#doTurn} with turn timeout.
      */
     private void doTurn() {
-        Thread turn = new Thread() {
+        new Thread() {
             @Override
             public void run() {
-                // set timeout
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        // interrupt turn thread
-                        interrupt();
-                        // send result of this turn
-                        network.send(model.getClientTurn());
-                    }
-                }, model.getTurnTimeout());
-
-                // do client's turn
-                client.doTurn(model.getWorld());
+                ai.doTurn(model.getWorld());
             }
-        };
-        turn.start();
+        }.start();
     }
 
     /**

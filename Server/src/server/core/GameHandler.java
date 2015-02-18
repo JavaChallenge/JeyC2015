@@ -244,8 +244,8 @@ public class GameHandler {
 
                 clientEvents = new Event[mClientsInfo.length][];
                 for (int i = 0; i < mClientsInfo.length; ++i) {
-                    if (mClientNetwork.getReceivedEvent(i) != null) {
-                        clientEvents[i] = mClientNetwork.getReceivedEvent(i);
+                    if (mClientNetwork.getReceivedEvents(i) != null) {
+                        clientEvents[i] = mClientNetwork.getReceivedEvents(i);
                     }
                 }
 
