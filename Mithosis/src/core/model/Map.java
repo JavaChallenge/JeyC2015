@@ -65,7 +65,7 @@ public class Map {
 
         File file = new File(dir);
         String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
-        System.out.println(json);
+//        System.out.println(json);
         FileStructure fs = new Gson().fromJson(json, FileStructure.class);
 
         // create map

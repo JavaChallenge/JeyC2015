@@ -202,7 +202,7 @@ public class Context {
 
     private void calculateRelationVisiblePos(int depthOfField) {
         if (relatedVisiblePositionsFromOdd.size() != relatedVisiblePositionsFromEven.size()) {
-            System.out.println("error!! calculateRelationVisiblePos!");
+//            System.out.println("error!! calculateRelationVisiblePos!");
         }
         if (relatedVisiblePositionsFromOdd.size() == 0) {
             Position[] positions = new Position[1];

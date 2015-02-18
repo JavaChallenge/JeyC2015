@@ -32,7 +32,7 @@ public class Position {
                 case SOUTH_WEST:
                     return new Position(x - 1, y - 1);
                 default:
-                    System.out.println("in chi bud dadi?!?!");
+//                    System.out.println("in chi bud dadi?!?!");
                     return null;
             }
         } else {
@@ -50,7 +50,7 @@ public class Position {
                 case SOUTH_WEST:
                     return new Position(x - 1, y);
                 default:
-                    System.out.println("in chi bud dadi?!?!");
+//                    System.out.println("in chi bud dadi?!?!");
                     return null;
             }
         }

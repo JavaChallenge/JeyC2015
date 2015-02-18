@@ -95,6 +95,10 @@ public class Cell extends DynamicGameObject {
             {
                 continue;
             }
+            if(ctx.getMap().at(tPos).getType().equals(Constants.BLOCK_TYPE_IMPASSABLE))
+            {
+                continue;
+            }
             int currentHeight = ctx.getMap().at(position).getHeight();
             int nextHeight = ctx.getMap().at(tPos).getHeight();
             if (nextHeight > currentHeight + 1) {
@@ -172,7 +176,7 @@ public class Cell extends DynamicGameObject {
         if( blockResource < gainRate) {
             gain = blockResource;
         }
-        else if(gainRate + blockResource > ServerConstants.CELL_MAX_ENERGY)
+        else if(gainRate + energy > ServerConstants.CELL_MAX_ENERGY)
         {
             gain = ServerConstants.CELL_MAX_ENERGY - energy;
         }

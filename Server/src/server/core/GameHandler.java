@@ -263,7 +263,7 @@ public class GameHandler {
 
             while (!shutdownRequest) {
                 long start = System.currentTimeMillis();
-                System.out.println(start);
+//                System.out.println(start);
                 try {
                     simulate.call();
                 } catch (Exception e) {
