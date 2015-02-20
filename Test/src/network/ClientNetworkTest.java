@@ -217,8 +217,8 @@ public class ClientNetworkTest {
         clientNetwork.stopReceivingAll();
         client.send(msg[3]);
         client.send(msg[4]);
-        ReceivedMessage m = clientNetwork.getReceivedMessage(id);
-        assertEquals(m.name, msg[2].name);
+        ReceivedMessage[] m = clientNetwork.getReceivedMessages(id);
+        assertEquals(m[0].name, msg[2].name);
 //        assertEquals(m.args.get(0).getAsString(), msg[2].args[0].toString());
 //        assertEquals(m.args.get(1).getAsString(), msg[2].args[1].toString());
     }

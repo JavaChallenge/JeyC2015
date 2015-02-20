@@ -8,6 +8,7 @@ import util.Log;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Consumer;
 
 /**
@@ -33,6 +34,11 @@ public class Network {
     private Consumer<ReceivedMessage> messageHandler;
 
     /**
+     * Send queue.
+     */
+    private LinkedBlockingDeque<Message> messagesToSend;
+
+    /**
      * Connection details.
      */
     private int port;
@@ -42,7 +48,7 @@ public class Network {
     /**
      * Socket of the client.
      */
-    private JsonSocket client;
+    private JsonSocket socket;
 
     /**
      * Connection flag.
@@ -72,7 +78,9 @@ public class Network {
      */
     public Network(Consumer<ReceivedMessage> messageHandler) {
         this.messageHandler = messageHandler;
-        executor = Executors.newSingleThreadExecutor();
+        messagesToSend = new LinkedBlockingDeque<>();
+        executor = Executors.newCachedThreadPool();
+        startSending();
     }
 
     /**
@@ -112,7 +120,7 @@ public class Network {
             return;
         }
         isConnected = true;
-        this.client = client;
+        this.socket = client;
         messageHandler.accept(init);
         startReceiving();
     }
@@ -134,7 +142,7 @@ public class Network {
      */
     private void doReceive() {
         try {
-            messageHandler.accept(client.get(ReceivedMessage.class));
+            messageHandler.accept(socket.get(ReceivedMessage.class));
         } catch (IOException e) {
             Log.i(TAG, "Error receiving the server's message.", e);
             handleIOE(e);
@@ -144,17 +152,30 @@ public class Network {
     }
 
     /**
+     * Starts sending messages to server.
+     */
+    private void startSending() {
+        executor.submit(() -> {
+            while (!terminateFlag) {
+                try {
+                    Message msg = messagesToSend.take();
+                    socket.send(msg);
+                } catch (InterruptedException ignored) {
+                } catch (IOException e) {
+                    Log.i(TAG, "Error while sending client's message.", e);
+                    handleIOE(e);
+                }
+            }
+        });
+    }
+
+    /**
      * Sends a message to the server.
      *
      * @param msg    message to send
      */
     public void send(Message msg) {
-        try {
-            client.send(msg);
-        } catch (IOException e) {
-            Log.i(TAG, "Error while sending client's message.", e);
-            handleIOE(e);
-        }
+        messagesToSend.add(msg);
     }
 
     /**
@@ -163,7 +184,7 @@ public class Network {
     public void terminate() {
         terminateFlag = true;
         try {
-            client.close();
+            socket.close();
         } catch (IOException e) {
             Log.i(TAG, "Error closing the client.", e);
         }

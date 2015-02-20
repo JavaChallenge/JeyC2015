@@ -6,6 +6,7 @@ import network.JsonSocket;
 import util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Supplier;
@@ -52,7 +53,7 @@ public class ClientHandler {
     /**
      * Last valid message which is arrived on time.
      */
-    private ReceivedMessage lastValidatedMessage;
+    private final ArrayList<ReceivedMessage> receivedMessages;
 
     /**
      * Last message received from client.
@@ -80,6 +81,7 @@ public class ClientHandler {
      */
     public ClientHandler() {
         messagesToSend = new LinkedBlockingDeque<>();
+        receivedMessages = new ArrayList<>();
         clientLock = new Object();
         messageNotifier = new Object();
     }
@@ -110,21 +112,19 @@ public class ClientHandler {
     }
 
     /**
-     * Removes last validated message.
-     */
-    public void clearLastValidatedMessage() {
-        lastValidatedMessage = null;
-    }
-
-    /**
      * A message is valid if it is arrived in a valid time, which is determined
      * by the server.
      *
      * @return last validated message.
      * @see #getReceiver
      */
-    public ReceivedMessage getLastValidatedMessage() {
-        return lastValidatedMessage;
+    public ReceivedMessage[] getReceivedMessages() {
+        ReceivedMessage[] messages;
+        synchronized (receivedMessages) {
+            messages = receivedMessages.toArray(new ReceivedMessage[receivedMessages.size()]);
+            receivedMessages.clear();
+        }
+        return messages;
     }
 
     /**
@@ -152,7 +152,7 @@ public class ClientHandler {
      * The result of method is a {@link java.lang.Runnable} object. When this
      * runnable is called it receives a new message from the client and if it
      * arrives in a valid time (which is checked using <code>timeValidator</code>)
-     * stores it in {@link #lastValidatedMessage}.
+     * stores it in {@link #receivedMessages}.
      *
      * @param timeValidator    <code>get</code> method of this object returns
      *                         true if and only if it is called in a valid time.
@@ -167,8 +167,10 @@ public class ClientHandler {
                 try {
                     waitForClient();
                     receive();
-                    if (timeValidator.get())
-                        lastValidatedMessage = lastReceivedMessage;
+                    if (timeValidator.get() && lastReceivedMessage != null)
+                        synchronized (receivedMessages) {
+                            receivedMessages.add(lastReceivedMessage);
+                        }
                 } catch (InterruptedException e) {
                     Log.i(TAG, "waiting for client interrupted", e);
                 } catch (IOException e) {
@@ -187,6 +189,7 @@ public class ClientHandler {
     private void receive() throws IOException {
         if (terminateFlag)
             return;
+        lastReceivedMessage = null;
         lastReceivedMessage = client.get(ReceivedMessage.class);
         synchronized (messageNotifier) {
             messageNotifier.notifyAll();
@@ -258,11 +261,14 @@ public class ClientHandler {
     public void terminate() {
         try {
             terminateFlag = true;
-            if (client != null)
-                client.close();
+            synchronized (clientLock) {
+                if (client != null)
+                    client.close();
+            }
         } catch (IOException e) {
             Log.i(TAG, "Socket closing failure.", e);
         }
+        client = null;
     }
 
     /**

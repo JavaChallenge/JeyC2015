@@ -195,7 +195,6 @@ public class ClientNetwork extends NetServer {
      * @see {@link #stopReceivingAll}
      */
     public void startReceivingAll() {
-        mClients.forEach(server.network.ClientHandler::clearLastValidatedMessage);
         receiveTimeFlag = true;
     }
 
@@ -206,8 +205,8 @@ public class ClientNetwork extends NetServer {
      * @return last valid message or <code>null</code> if there is no valid msg
      * @see {@link #defineClient}
      */
-    public ReceivedMessage getReceivedMessage(int clientID) {
-        return mClients.get(clientID).getLastValidatedMessage();
+    public ReceivedMessage[] getReceivedMessages(int clientID) {
+        return mClients.get(clientID).getReceivedMessages();
     }
 
     /**
@@ -215,25 +214,27 @@ public class ClientNetwork extends NetServer {
      *
      * @param clientID    ID of the client
      * @return last valid event or <code>null</code> if there is no valid event
-     * @see {@link #getReceivedMessage}
+     * @see {@link #getReceivedMessages}
      */
-    public Event[] getReceivedEvent(int clientID) {
-        ReceivedMessage msg = getReceivedMessage(clientID);
-        Event[] events = null;
-        try {
+    public Event[] getReceivedEvents(int clientID) {
+        ReceivedMessage[] messages = getReceivedMessages(clientID);
+        ArrayList<Event> allEvents = new ArrayList<>();
+        for (ReceivedMessage msg : messages) {
+            try {
             /*JsonArray eventArray = ((JsonElement)msg.args[0]).getAsJsonArray();
             events = new Event[eventArray.size()];
             for (int i = 0; i < events.length; i++)
                 events[i] = gson.fromJson(eventArray.get(i), Event.class);*/
-            events = new Event[msg.args.size()];
-            for(int i = 0; i < events.length; i++)
-            {
-                events[i] = gson.fromJson(msg.args.get(i), Event.class);
+                //Event[] events = new Event[msg.args.size()];
+                int size = msg.args.size();
+                for (int i = 0; i < size; i++) {
+                    allEvents.add(gson.fromJson(msg.args.get(i), Event.class));
+                }
+            } catch (Exception e) {
+                Log.i(TAG, "Error getting event.", e);
             }
-        } catch (Exception e) {
-            Log.i(TAG, "Error getting received messages.", e);
         }
-        return events;
+        return allEvents.toArray(new Event[allEvents.size()]);
     }
 
     @Override
