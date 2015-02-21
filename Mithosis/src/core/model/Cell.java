@@ -101,7 +101,7 @@ public class Cell extends DynamicGameObject {
             }
             int currentHeight = ctx.getMap().at(position).getHeight();
             int nextHeight = ctx.getMap().at(tPos).getHeight();
-            if (nextHeight > currentHeight + 1) {
+            if (nextHeight > currentHeight + 2) {
                 continue;
             }
             if(ctx.getMap().at(tPos).isEmpty())
@@ -137,7 +137,7 @@ public class Cell extends DynamicGameObject {
         }
         int nextHeight = ctx.getMap().at(nextPos).getHeight();
         int currentHeight = ctx.getMap().at(position).getHeight();
-        if(nextHeight > currentHeight +1)
+        if(nextHeight > currentHeight +2)
         {
             return false;
         }

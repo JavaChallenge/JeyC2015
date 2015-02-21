@@ -74,4 +74,12 @@ public class Team {
     {
         viewHistory[pos.getY()][pos.getX()] = ctx.getTurn();
     }
+
+    public int getScore() {
+        return mScore;
+    }
+
+    public void setScore(int mScore) {
+        this.mScore = mScore;
+    }
 }

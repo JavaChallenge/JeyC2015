@@ -11,6 +11,7 @@ import server.core.model.ClientInfo;
 import model.Event;
 import network.data.Message;
 
+import javax.xml.bind.SchemaOutputResolver;
 import java.io.IOException;
 import java.util.*;
 
@@ -19,7 +20,7 @@ import java.util.*;
  */
 public class MitosisGameLogic implements GameLogic {
 
-    private final long GAME_LONG_TIME_TURN = 500;
+    private final long GAME_LONG_TIME_TURN = 10;//TODO 500
 
     private static final String RESOURCE_PATH_CLIENTS = "resources/mitosis/clients.conf";
 
@@ -327,18 +328,14 @@ public class MitosisGameLogic implements GameLogic {
             }
         }
 
-        /*for (GameEvent event: gainResourceEvents) {
-            Cell cell = null;
-            for (Team team: mTeams) {
-                if (team.getCellById(event.getGameObjectId()) != null)
-                    cell = team.getCellById(event.getGameObjectId());
+        for(Team team : mTeams)
+        {
+            int score = 0;
+            for (Cell cell: team.getCells()) {
+                score += cell.getEnergy();
             }
-            if (cell == null) continue;
-
-            // check if the location of the cell is of type resource
-            if (map.at(cell.getPos().x, cell.getPos().y).equals(Block.TYPE_RESOURCE))
-                cell.gainResource();
-        }*/
+            team.setScore(score);
+        }
         ctx.incTurn();
     }
 
@@ -495,5 +492,20 @@ public class MitosisGameLogic implements GameLogic {
     @Override
     public boolean isGameFinished() {
         return ctx.getTurn() >= GAME_LONG_TIME_TURN;
+    }
+
+    @Override
+    public void terminate()
+    {
+        if(mTeams.length > 0) {
+            for (int i = 0; i < mTeams.length; i++) {
+                if(i > 0)
+                {
+                    System.out.print(", ");
+                }
+                System.out.print(mTeams[i].getScore());
+            }
+            System.out.println();
+        }
     }
 }
