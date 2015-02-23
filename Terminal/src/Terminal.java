@@ -7,6 +7,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -15,12 +16,15 @@ import java.util.StringTokenizer;
  */
 public class Terminal {
 
-    private static final String FILE_PATH = "../JGFramework/Terminal/Resources/ip-port.conf";
+    private final Scanner scanner = TerminalApp.globalScanner;
+
+    private static final String CONFIG_PATH = "resources/terminal/ip-port.conf";
 
     private static final String CMD_TYPE_CONNECT = "connect";
     private static final String CMD_TYPE_DISCONNECT = "disconnect";
-    private static final String CMD_TYPE_SETPORT = "set-port";
-    private static final String CMD_TYPE_SETIP = "set-ip";
+    private static final String CMD_TYPE_SET_PORT = "set-port";
+    private static final String CMD_TYPE_SET_IP = "set-ip";
+    private static final String CMD_TYPE_EXIT = "exit";
 
     private static Terminal terminal = null;
     private String ip;
@@ -45,7 +49,7 @@ public class Terminal {
     public void writeIpAndPortToFile(String ip, int port) throws IOException {
         Gson gson = new Gson();
         String json = gson.toJson(new TerminalAppConfig(ip,port));
-        FileWriter writer = new FileWriter(FILE_PATH);
+        FileWriter writer = new FileWriter(CONFIG_PATH);
         writer.write(json);
         writer.close();
 
@@ -57,7 +61,7 @@ public class Terminal {
         Gson gson = new Gson();
 
         try {
-            BufferedReader br = new BufferedReader( new FileReader(FILE_PATH));
+            BufferedReader br = new BufferedReader( new FileReader(CONFIG_PATH));
             TerminalAppConfig terminalAppConfig= gson.fromJson(br, TerminalAppConfig.class);
             this.port = terminalAppConfig.getPort();
             this.ip = terminalAppConfig.getIp();
@@ -79,6 +83,7 @@ public class Terminal {
             case CMD_TYPE_CONNECT:
                 try {
                     handleConnectCmd();
+                    getReport();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (NoSuchAlgorithmException e) {
@@ -94,7 +99,7 @@ public class Terminal {
                 }
                 break;
 
-            case CMD_TYPE_SETIP:
+            case CMD_TYPE_SET_IP:
                 try {
                     handleSetIpCmd(command);
                 } catch (IOException e) {
@@ -102,16 +107,18 @@ public class Terminal {
                 }
                 break;
 
-            case CMD_TYPE_SETPORT:
+            case CMD_TYPE_SET_PORT:
                 try {
                     handleSetPortCmd(command);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
-
             default:
-
+                if (jsonSocket == null) {
+                    System.out.println("Command not found. Please connect to server to get more commands available.");
+                    return;
+                }
                 //externalCommand.cmdType = cmdType;
                 //command.remove(0);
                 //externalCommand.args = command.toArray(new String[command.size()]);
@@ -122,26 +129,39 @@ public class Terminal {
                 Message message = new Message("command",args);
                 try {
                     jsonSocket.send(message);
+                    if (cmdType.equals(CMD_TYPE_EXIT)) {
+                        System.exit(0);
+                    } else {
+                        getReport();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
         }
+    }
 
+    private void getReport() {
+        try {
+            Message report = jsonSocket.get(Message.class);
+            System.out.println(report.name + ": " + Arrays.deepToString(report.args));
+            System.out.flush();
+            if (report.name.equals(Message.NAME_WRONG_TOKEN))
+                jsonSocket = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void handleConnectCmd() throws IOException, NoSuchAlgorithmException {
 
         String token;
-
         System.out.print("Enter the password: ");
-        Scanner scanner = new Scanner(System.in);
+        System.out.flush();
         String password = scanner.nextLine();
 
-        if(password.equals(""))
-        {
+        if(password.equals("")) {
             token = "00000000000000000000000000000000";
-        }
-        else {
+        } else {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(password.getBytes());
             byte[] bytes = md5.digest(); //This has bytes in decimal format;
@@ -155,15 +175,11 @@ public class Terminal {
         }
         jsonSocket = new JsonSocket(ip, port);
 
-        Object [] args = new Object[1];
+        Object[] args = new Object[1];
 
         args[0] = token;
 
         jsonSocket.send(new Message("token", args));
-
-        //jsonSocket.send(token);
-
-        System.out.println("Successfully connected!");
     }
 
     private void handleDisconnectCmd() throws IOException {

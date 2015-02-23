@@ -7,10 +7,12 @@ import server.core.Factory;
 import server.core.GameHandler;
 import server.core.GameLogic;
 import server.core.model.ClientInfo;
+import server.core.model.Configs;
 import server.network.ClientNetwork;
 import server.network.TerminalNetwork;
 import server.network.UINetwork;
 import network.data.Message;
+import util.Log;
 
 import java.io.*;
 
@@ -29,16 +31,14 @@ import java.io.*;
  */
 public class Server {
 
-    private static final String RESOURCE_PATH_TERMINAL = "resources/network/terminal.conf";
-    private static final String RESOURCE_PATH_UI = "resources/network/ui.conf";
-    private static final String RESOURCE_PATH_CLIENT = "resources/network/client.conf";
+    private static final String CONFIG_PATH = "resources/server/server.conf";
 
-    private Factory mFactory;
+     private Factory mFactory;
     private TerminalNetwork mTerminalNetwork;
     private GameHandler mGameHandler;
-    private TerminalConfig mTerminalConfig;
-    private UIConfig mUIConfig;
-    private ClientConfig mClientConfig;
+    private Configs.TerminalConfig mTerminalConfig;
+    private Configs.UIConfig mUIConfig;
+    private Configs.ClientConfig mClientConfig;
 
     private ClientInfo[] mClientsInfo;
 
@@ -58,43 +58,20 @@ public class Server {
     public Server(Factory factory) {
         mFactory = factory;
 
-        Gson gson = new Gson();
-
-        File file;
-        BufferedReader bufferedReader;
-
         try {
-            file = new File(RESOURCE_PATH_TERMINAL);
-            bufferedReader = new BufferedReader(new FileReader(file));
-            mTerminalConfig = gson.fromJson(bufferedReader, TerminalConfig.class);
-        } catch (FileNotFoundException notFound) {
-            throw new RuntimeException("Terminal config file not found");
-        } catch (JsonParseException parse) {
-            throw new RuntimeException("Terminal config file does not meet expected syntax");
+            Configs.load(CONFIG_PATH);
+        } catch (IOException e) {
+            throw new RuntimeException("Server config file not found.");
         }
-        mTerminalNetwork = new TerminalNetwork(mTerminalConfig.getTerminalToken());
 
-        try {
-            file = new File(RESOURCE_PATH_UI);
-            bufferedReader = new BufferedReader(new FileReader(file));
-            mUIConfig = gson.fromJson(bufferedReader, UIConfig.class);
-        } catch (FileNotFoundException notFound) {
-            throw new RuntimeException("UI config file not found");
-        } catch (JsonParseException parse) {
-            throw new RuntimeException("UI config file does not meet the expected syntax");
-        }
-        mGameHandler = new GameHandler(new ClientNetwork(), new UINetwork(mUIConfig.getUIToken()));
+        mTerminalConfig = Configs.getConfigs().terminal;
+        mTerminalNetwork = new TerminalNetwork(mTerminalConfig.token);
+
+        mUIConfig = Configs.getConfigs().ui;
+        mGameHandler = new GameHandler();
         mGameHandler.init();
 
-        try {
-            file = new File(RESOURCE_PATH_CLIENT);
-            bufferedReader = new BufferedReader(new FileReader(file));
-            mClientConfig = gson.fromJson(bufferedReader, ClientConfig.class);
-        } catch (FileNotFoundException notFound) {
-            throw new RuntimeException("Client config file not found");
-        } catch (JsonParseException parse) {
-            throw new RuntimeException("Client config file does not meet the expected syntax");
-        }
+        mClientConfig = Configs.getConfigs().client;
 
         setCommandHandler(new CommandHandler());
     }
@@ -120,7 +97,8 @@ public class Server {
      * Starts the server by make it listening and responding to the Terminal.
      */
     public void start() {
-        mTerminalNetwork.listen(mTerminalConfig.getTerminalPort());
+        System.out.println("server started");
+        mTerminalNetwork.listen(mTerminalConfig.port);
     }
 
     public void newGame(String[] options, long uiTimeout, long clientTimeout) throws IOException {
@@ -137,29 +115,45 @@ public class Server {
             mClientsInfo[i].setID(id);
         }
 
-        mGameHandler.getUINetwork().listen(mUIConfig.getUIPort());
-        mGameHandler.getClientNetwork().listen(mClientConfig.getClientPort());
+        if (Configs.getConfigs().ui.enable) {
+            mGameHandler.getUINetwork().listen(mUIConfig.port);
+            mGameHandler.getClientNetwork().listen(mClientConfig.port);
 
-        try {
-            mGameHandler.getUINetwork().waitForClient(uiTimeout);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Waiting for ui clients interrupted");
+            try {
+                mGameHandler.getUINetwork().waitForClient(uiTimeout);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Waiting for ui clients interrupted");
+            }
+
+            try {
+                mGameHandler.getClientNetwork().waitForAllClients(clientTimeout);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Waiting for clients interrupted");
+            }
+
+            Message initialMessage = gameLogic.getUIInitialMessage();
+            mGameHandler.getUINetwork().sendBlocking(initialMessage);
+
+            Message[] initialMessages = gameLogic.getClientInitialMessages();
+            for (int i = 0; i < initialMessages.length; ++i) {
+                mGameHandler.getClientNetwork().queue(i, initialMessages[i]);
+            }
+            mGameHandler.getClientNetwork().sendAllBlocking();
+        } else {
+            mGameHandler.getClientNetwork().listen(mClientConfig.port);
+
+            try {
+                mGameHandler.getClientNetwork().waitForAllClients(clientTimeout);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Waiting for clients interrupted");
+            }
+
+            Message[] initialMessages = gameLogic.getClientInitialMessages();
+            for (int i = 0; i < initialMessages.length; ++i) {
+                mGameHandler.getClientNetwork().queue(i, initialMessages[i]);
+            }
+            mGameHandler.getClientNetwork().sendAllBlocking();
         }
-
-        try {
-            mGameHandler.getClientNetwork().waitForAllClients(clientTimeout);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Waiting for clients interrupted");
-        }
-
-        Message initialMessage = gameLogic.getUIInitialMessage();
-        mGameHandler.getUINetwork().sendBlocking(initialMessage);
-
-        Message[] initialMessages = gameLogic.getClientInitialMessages();
-        for (int i = 0; i <initialMessages.length; ++i) {
-            mGameHandler.getClientNetwork().queue(i, initialMessages[i]);
-        }
-        mGameHandler.getClientNetwork().sendAllBlocking();
     }
 
     /**

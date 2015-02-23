@@ -102,28 +102,28 @@ public class TerminalNetwork extends NetServer {
          */
         @Override
         public void run() {
+            boolean valid = false;
             try {
                 Message msg = client.get(Message.class);
 
-                if (!msg.name.equals("token") || msg.args == null || msg.args.length < 1 || !msg.args[0].equals(token)) {
-                    client.close();
-                    return;
-                }
-                Object [] args = new Object[1];
-                args[0] = new ArrayList<String>();
-                client.send(new Message("init", args));
+                if (msg != null && "token".equals(msg.name) && msg.args != null && msg.args.length >= 1 && token.equals(msg.args[0])) {
+                    valid = true;
+                    Object [] args = new Object[1];
+                    args[0] = new ArrayList<String>();
+                    client.send(new Message("init", args));
 
-                int exceptions = 0;
+                    int exceptions = 0;
 
-                // now the user is a valid one
-                while (userHasCommand) {
-                    try {
-                        checkInput();
-                    } catch (Exception e) {
-                        exceptions++;
-                        if (exceptions > MAX_RECEIVE_EXCEPTIONS)
-                            return;
-                        e.printStackTrace();
+                    // now the user is a valid one
+                    while (userHasCommand) {
+                        try {
+                            checkInput();
+                        } catch (Exception e) {
+                            exceptions++;
+                            if (exceptions > MAX_RECEIVE_EXCEPTIONS)
+                                return;
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -135,6 +135,14 @@ public class TerminalNetwork extends NetServer {
                     e1.printStackTrace();
                 }
             }
+            if (!valid) {
+                try {
+                    client.send(new Message(Message.NAME_WRONG_TOKEN, new Object[] {}));
+                    client.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         /**
@@ -143,6 +151,8 @@ public class TerminalNetwork extends NetServer {
          */
         public void checkInput() throws IOException {
             Message msg = client.get(Message.class);
+            if (msg == null)
+                return;
             switch (msg.name) {
                 case "command":
                     Message command  = new Message((String)msg.args[0], ((ArrayList<String>)msg.args[1]).toArray());
@@ -153,10 +163,9 @@ public class TerminalNetwork extends NetServer {
                     handler.putEvent((Event) msg.args[0]);
                     break;
                 default:
-                    client.send(new Message(REPORT_NAME, new Object[]{
-                            new Object[] {"This message is not defined."}
+                    client.send(new Message(REPORT_NAME, new Object[] {
+                            new Object[] {"Message is not defined."}
                     }));
-                    //client.send("Your input is invalid!\nPlease don't hack me :)");
                     break;
             }
         }

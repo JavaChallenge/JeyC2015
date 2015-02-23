@@ -94,11 +94,9 @@ public class ClientNetwork extends NetServer {
      */
     public int defineClient(String token) {
         if (!isTerminated())
-            throw new RuntimeException("ClientNetwork: " +
-                    "server is not terminated when defineClient() is called.");
+            throw new RuntimeException("Server is not terminated when defineClient() is called.");
         if (mTokens.containsKey(token))
-            throw new RuntimeException("ClientNetwork: " +
-                    "duplicate token. " + token);
+            throw new RuntimeException("Duplicate token. " + token);
         int id = mClients.size();
         mTokens.put(token, id);
         mClients.add(newClient());
@@ -114,6 +112,7 @@ public class ClientNetwork extends NetServer {
         ClientHandler client = new ClientHandler();
         Runnable receiver = client.getReceiver(() -> receiveTimeFlag);
         receiveExecutor.submit(receiver);
+        sendExecutor.submit(client.getSender());
         return client;
     }
 
@@ -124,8 +123,7 @@ public class ClientNetwork extends NetServer {
      */
     public void omitAllClients() {
         if (!isTerminated())
-            throw new RuntimeException("ClientNetwork: " +
-                    "server is not terminated when omitAllClients() is called.");
+            throw new RuntimeException("Server is not terminated when omitAllClients() is called.");
         mClients.forEach(server.network.ClientHandler::terminate);
         mTokens.clear();
         mClients.clear();
@@ -251,20 +249,22 @@ public class ClientNetwork extends NetServer {
         });
     }
 
-    private void verifyClient(JsonSocket client) throws Exception {
+    private boolean verifyClient(JsonSocket client) throws Exception {
         // get the token, timeout is 1000 seconds
         Future<Message> futureMessage
                 = acceptExecutor.submit(() -> client.get(Message.class));
         Message token = futureMessage.get(1000, TimeUnit.SECONDS);
         // check the token
-        if (!"token".equals(token.name))
-            throw new Exception("ClientNetwork: Client rejected, " +
-                    "first message is not token.");
-        String clientToken = (String) token.args[0];
-        // ID of client
-        int clientID = mTokens.get(clientToken);
-        // bind socket to corresponding client handler
-        mClients.get(clientID).bind(client);
+        if (token != null && "token".equals(token.name) && token.args != null
+                && token.args.length >= 1 && token.args[0] instanceof String) {
+            String clientToken = (String) token.args[0];
+            int clientID = mTokens.getOrDefault(clientToken, -1);
+            if (clientID != -1) {
+                mClients.get(clientID).bind(client);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

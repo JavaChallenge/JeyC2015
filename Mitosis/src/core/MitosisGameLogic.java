@@ -1,9 +1,13 @@
 package core;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import core.model.*;
 import model.*;
 import core.model.Map;
 import data.*;
+import server.core.model.Configs;
 import util.ServerConstants;
 import server.Server;
 import server.core.GameLogic;
@@ -12,7 +16,10 @@ import model.Event;
 import network.data.Message;
 
 import javax.xml.bind.SchemaOutputResolver;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -20,8 +27,10 @@ import java.util.*;
  */
 public class MitosisGameLogic implements GameLogic {
 
-    private final long GAME_LONG_TIME_TURN = 10;//TODO 500
+    private final long GAME_LONG_TIME_TURN;
 
+    private static final Charset CONFIG_ENCODING = Charset.forName("UTF-8");
+    private static final String RESOURCE_PATH_GAME = "resources/mitosis/game.conf";
     private static final String RESOURCE_PATH_CLIENTS = "resources/mitosis/clients.conf";
 
 
@@ -44,9 +53,10 @@ public class MitosisGameLogic implements GameLogic {
     public MitosisGameLogic(String[] options) throws IOException {
         super();
 
-        ctx = new Context(ServerConstants.TURN_INIT, options[0], RESOURCE_PATH_CLIENTS);
+        String gameConfig = new String(Files.readAllBytes(new File(RESOURCE_PATH_GAME).toPath()), CONFIG_ENCODING);
+        GAME_LONG_TIME_TURN = new Gson().fromJson(gameConfig, JsonObject.class).get("turn").getAsLong();
 
-        Map map = ctx.getMap();
+        ctx = new Context(ServerConstants.TURN_INIT, options[0], RESOURCE_PATH_CLIENTS);
 
         mTeams = ctx.getTeams();
     }
@@ -208,8 +218,7 @@ public class MitosisGameLogic implements GameLogic {
                     {
                         GameEvent event = new GameEvent(clientsEvent[i][j]);
                         //event.getGameObjectId() TODO CHECK OWNER
-                        if(ctx.getDynamicObject(event.getObjectId()).getTeamId() != i)
-                        {
+                        if(ctx.getDynamicObject(event.getObjectId()).getTeamId() != i) {
                             continue;
                         }
                         event.setTeamId(i);

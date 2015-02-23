@@ -6,6 +6,8 @@ import model.Direction;
 import util.Constants;
 import util.ServerConstants;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -19,41 +21,27 @@ import java.util.Random;
 public class AI {
 
     public void doTurn(World world) {
+        ArrayList<Cell> cells = world.getMyCells();
+        Object[] xs = cells.stream().map(Cell::getPos).toArray();
+        System.out.println(Arrays.toString(xs));
+
         long start = System.currentTimeMillis();
-        System.out.println(start);
-//        System.out.println(model.getTurnRemainingTime());
-        /*System.out.println(world.getMapSize().getWidth());
-        System.out.println(world.getMapSize().getHeight());
-        System.out.println(world.getMyId());
-        System.out.println(world.getMyName());
-        System.out.println(world.getTeams().length);
-        System.out.println(world.getTurn());*/
-        System.out.println(world.getMyCells().size());
         Random rnd = new Random();
-        for(Cell c : world.getMyCells())
-        {
+        for(Cell c : world.getMyCells()) {
             Block block = world.getMap().at(c.getPos());
-            if(c.getEnergy() >= Constants.CELL_MIN_ENERGY_FOR_MITOSIS && block.getType().equals(Constants.BLOCK_TYPE_MITOSIS))
-            {
+            if(c.getEnergy() >= Constants.CELL_MIN_ENERGY_FOR_MITOSIS && block.getType().equals(Constants.BLOCK_TYPE_MITOSIS)) {
                 System.out.println("mitosis");
                 System.out.println(c.getEnergy());
                 c.mitosis();
-            }
-            else if(c.getEnergy() < Constants.CELL_MAX_ENERGY && block.getType().equals(Constants.BLOCK_TYPE_RESOURCE) && block.getResource() > 0)
-            {
-                //System.out.println("gain");
-                //System.out.println(block.getResource());
-                //System.out.println(c.getEnergy());
+            } else if(c.getEnergy() < Constants.CELL_MAX_ENERGY && block.getType().equals(Constants.BLOCK_TYPE_RESOURCE) && block.getResource() > 0) {
                 c.gainResource();
             }
             else {
                 c.move(Direction.values()[rnd.nextInt(6)]);
             }
         }
-        //GameEvent event = new GameEvent();
-        //model.addEvent(event);
-        // you should fill this method
-        // an example is included here
+        long end = System.currentTimeMillis();
+        System.out.println(end - start);
     }
 
 }
