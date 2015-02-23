@@ -217,9 +217,9 @@ public class GameHandler {
                 for (int i = 0 ; i < output.length; ++i) {
                     mClientNetwork.queue(i, output[i]);
                 }
-                mClientNetwork.sendAllBlocking();
 
                 mClientNetwork.startReceivingAll();
+                mClientNetwork.sendAllBlocking();
                 long elapsedTime = System.currentTimeMillis();
                 environmentEvents = mGameLogic.makeEnvironmentEvents();
                 elapsedTime = System.currentTimeMillis() - elapsedTime;
@@ -234,9 +234,8 @@ public class GameHandler {
 
                 clientEvents = new Event[mClientsInfo.length][];
                 for (int i = 0; i < mClientsInfo.length; ++i) {
-                    if (mClientNetwork.getReceivedEvent(i) != null) {
-                        clientEvents[i] = mClientNetwork.getReceivedEvent(i);
-                    }
+                    Event[] events = mClientNetwork.getReceivedEvents(i);
+                    clientEvents[i] = events;
                 }
 
                 BlockingQueue<Event> terminalEventsQueue = new LinkedBlockingQueue<>();
