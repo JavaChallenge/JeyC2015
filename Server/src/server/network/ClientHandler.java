@@ -105,7 +105,7 @@ public class ClientHandler {
     }
 
     /**
-     * Sends last queued message.
+     * Sends all queued messages (non-blocking).
      */
     public void send() {
         synchronized (messagesQueued) {
@@ -128,13 +128,6 @@ public class ClientHandler {
                 }
             }
         };
-    }
-
-    /**
-     * Removes last validated message.
-     */
-    public void clearLastValidatedMessage() {
-        lastValidatedMessage = null;
     }
 
     /**
