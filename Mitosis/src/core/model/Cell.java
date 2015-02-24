@@ -56,15 +56,13 @@ public class Cell extends DynamicGameObject {
             diffsForAllViews[i].put(ServerConstants.CELL_KEY_ENERGY, this.energy);
             diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_TEAM_ID, this.teamId);
             diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_POSITION, this.position);
-            if(i != this.teamId || i != ctx.getGlobalViewIndex())
+            if(i == this.teamId || i == ctx.getGlobalViewIndex())
             {
-                continue;
+                diffsForAllViews[i].put(ServerConstants.CELL_KEY_JUMP, this.jump);
+                diffsForAllViews[i].put(ServerConstants.CELL_KEY_ATTACK, this.attack);
+                diffsForAllViews[i].put(ServerConstants.CELL_KEY_GAIN_RATE, this.gainRate);
+                diffsForAllViews[i].put(ServerConstants.CELL_KEY_DEPTH_OF_FIELD, this.depthOfField);
             }
-            diffsForAllViews[i].put(ServerConstants.CELL_KEY_JUMP, this.jump);
-            diffsForAllViews[i].put(ServerConstants.CELL_KEY_ATTACK, this.attack);
-            diffsForAllViews[i].put(ServerConstants.CELL_KEY_GAIN_RATE, this.gainRate);
-            diffsForAllViews[i].put(ServerConstants.CELL_KEY_DEPTH_OF_FIELD, this.depthOfField);
-
         }
     }
 

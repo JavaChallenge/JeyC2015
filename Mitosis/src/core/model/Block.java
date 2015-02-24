@@ -75,7 +75,10 @@ public class Block {
             }
             if(mType.equals(ServerConstants.BLOCK_TYPE_MITOSIS))
             {
-                //TODO
+                diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_ATTACK_IMP, mAttackImprovementAmount);
+                diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_GAIN_RATE_IMP, mGainImprovementAmount);
+                diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_DEPTH_OF_FIELD_IMP, mDepthOfFieldImprovementAmount);
+                diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_JUMP_IMP, mJumpImprovementAmount);
             }
 
         }
