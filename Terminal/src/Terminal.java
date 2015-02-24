@@ -2,6 +2,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import network.JsonSocket;
 import network.data.Message;
+import util.Json;
 
 import java.io.*;
 import java.security.MessageDigest;
@@ -47,7 +48,7 @@ public class Terminal {
     }
 
     public void writeIpAndPortToFile(String ip, int port) throws IOException {
-        Gson gson = new Gson();
+        Gson gson = Json.GSON;
         String json = gson.toJson(new TerminalAppConfig(ip,port));
         FileWriter writer = new FileWriter(CONFIG_PATH);
         writer.write(json);
@@ -58,7 +59,7 @@ public class Terminal {
     public void setIpAndPortFromFile() throws IOException {
 
 
-        Gson gson = new Gson();
+        Gson gson = Json.GSON;
 
         try {
             BufferedReader br = new BufferedReader( new FileReader(CONFIG_PATH));

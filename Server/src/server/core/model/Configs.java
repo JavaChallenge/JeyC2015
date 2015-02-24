@@ -1,6 +1,7 @@
 package server.core.model;
 
 import com.google.gson.Gson;
+import util.Json;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,7 +86,7 @@ public class Configs {
     public static void load(String path, Charset encoding) throws IOException {
         File configFile = new File(path);
         String config = new String(Files.readAllBytes(configFile.toPath()), encoding);
-        configs = new Gson().fromJson(config, Configs.class);
+        configs = Json.GSON.fromJson(config, Configs.class);
     }
 
 

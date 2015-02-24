@@ -7,6 +7,7 @@ import core.model.*;
 import core.model.Map;
 import model.*;
 import server.core.model.ClientInfo;
+import util.Json;
 import util.ServerConstants;
 
 import java.io.*;
@@ -48,7 +49,7 @@ public class Context {
         relatedVisiblePositionsFromOdd = new ArrayList<>();
 
         //load clients
-        Gson gson = new Gson();
+        Gson gson = Json.GSON;
         try {
             File file = new File(clientIntoDir);
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
@@ -96,7 +97,7 @@ public class Context {
         File file = new File(dir);
         String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
         //System.out.println(json);
-        Map.FileStructure fs = new Gson().fromJson(json, Map.FileStructure.class);
+        Map.FileStructure fs = Json.GSON.fromJson(json, Map.FileStructure.class);
 
         // create map
         int w = fs.map.width, h = fs.map.height;

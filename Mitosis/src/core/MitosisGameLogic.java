@@ -7,6 +7,7 @@ import core.model.*;
 import model.*;
 import core.model.Map;
 import data.*;
+import util.Json;
 import util.ServerConstants;
 import server.Server;
 import server.core.GameLogic;
@@ -52,7 +53,7 @@ public class MitosisGameLogic implements GameLogic {
         super();
 
         String gameConfig = new String(Files.readAllBytes(new File(RESOURCE_PATH_GAME).toPath()), CONFIG_ENCODING);
-        GAME_LONG_TIME_TURN = new Gson().fromJson(gameConfig, JsonObject.class).get("turn").getAsLong();
+        GAME_LONG_TIME_TURN = Json.GSON.fromJson(gameConfig, JsonObject.class).get("turn").getAsLong();
 
         ctx = new Context(ServerConstants.TURN_INIT, options[0], RESOURCE_PATH_CLIENTS);
 

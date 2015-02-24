@@ -3,7 +3,9 @@ package client;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import network.data.ReceivedMessage;
+import util.Json;
 import util.Log;
+import util.ServerConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -167,7 +169,7 @@ public class Controller {
     private void readClientData() throws IOException {
         byte fileData[] = Files.readAllBytes(Paths.get(settingsFile));
         String json = new String(fileData, detailsEnc);
-        Gson gson = new Gson();
+        Gson gson = Json.GSON;
         JsonObject details = gson.fromJson(json, JsonObject.class);
         host = details.getAsJsonPrimitive("ip").getAsString();
         port = details.getAsJsonPrimitive("port").getAsInt();

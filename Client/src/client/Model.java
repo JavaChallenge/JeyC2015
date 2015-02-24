@@ -6,6 +6,7 @@ import data.*;
 import model.Event;
 import network.data.Message;
 import network.data.ReceivedMessage;
+import util.Json;
 import util.ServerConstants;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.function.Consumer;
  * Model contains data which describes current state of the game.
  */
 public class Model {
-    private static Gson gson = new Gson();
+    private static Gson gson = Json.GSON;
     private long turnTimeout = 400;
     private long turnStartTime;
     private LinkedBlockingDeque<Event> eventsToSend;

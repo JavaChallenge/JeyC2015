@@ -5,6 +5,7 @@ import model.Event;
 import network.data.Message;
 import network.data.ReceivedMessage;
 import network.JsonSocket;
+import util.Json;
 import util.Log;
 
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class ClientNetwork extends NetServer {
      * Constructor.
      */
     public ClientNetwork() {
-        gson = new Gson();
+        gson = Json.GSON;
         mTokens = new HashMap<>();
         mClients = new ArrayList<>();
         sendExecutor = Executors.newCachedThreadPool();
