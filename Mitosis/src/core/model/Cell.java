@@ -3,8 +3,10 @@ package core.model;
 import core.Context;
 import data.CellData;
 import data.DynamicData;
+import data.ObjectDiff;
 import model.Direction;
 import model.Position;
+import server.Server;
 import util.Constants;
 import util.ServerConstants;
 import util.UID;
@@ -21,11 +23,14 @@ public class Cell extends DynamicGameObject {
     //private String id;
     //private Position pos;
     //final private int teamId;
-    private int depthOfField;
+    private int jump;
     private int energy;
+    private int attack;
     private int gainRate;
+    private int depthOfField;
     //private DynamicGameObject myDynamicGameObject;
     private CellData mDynamicData;
+    private ObjectDiff[] diffsForAllViews;
 
     public Cell (Context ctx, Position pos, int teamId, int dof, int energy, int gainRate) {
         super(teamId);
@@ -38,6 +43,26 @@ public class Cell extends DynamicGameObject {
         this.gainRate = gainRate;
 
         mDynamicData = new CellData(id, this.position, type, this.teamId, this.energy);
+
+        diffsForAllViews = new ObjectDiff[ctx.getViewsList().length];
+        for(int i = 0; i < ctx.getViewsList().length; i++)
+        {
+            diffsForAllViews[i] =  new ObjectDiff(id);
+
+            diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_TYPE, type);
+            diffsForAllViews[i].put(ServerConstants.CELL_KEY_ENERGY, this.energy);
+            diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_TEAM_ID, this.teamId);
+            diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_POSITION, this.position);
+            if(i != this.teamId || i != ctx.getGlobalViewIndex())
+            {
+                continue;
+            }
+            diffsForAllViews[i].put(ServerConstants.CELL_KEY_JUMP, this.jump);
+            diffsForAllViews[i].put(ServerConstants.CELL_KEY_ATTACK, this.attack);
+            diffsForAllViews[i].put(ServerConstants.CELL_KEY_GAIN_RATE, this.gainRate);
+            diffsForAllViews[i].put(ServerConstants.CELL_KEY_DEPTH_OF_FIELD, this.depthOfField);
+
+        }
     }
 
     public void addEnergy(int amount) {
@@ -67,12 +92,27 @@ public class Cell extends DynamicGameObject {
     }
 
     public void setEnergy(int energy) {
-        mDynamicData.setEnergy(energy);
         this.energy = energy;
+        mDynamicData.setEnergy(energy);
+        for(int i = 0; i < ctx.getViewsList().length; i++)
+        {
+            diffsForAllViews[i].put(ServerConstants.CELL_KEY_ENERGY, this.energy);
+        }
     }
 
     public void setGainRate(int gainRate) {
         this.gainRate = gainRate;
+    }
+
+    @Override
+    public void setPos(Position position)
+    {
+        this.position = position;
+        mDynamicData.setPosition(position);
+        for(int i = 0; i < ctx.getViewsList().length; i++)
+        {
+            diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_POSITION, this.position);
+        }
     }
 
     /*public void setTeamId(int teamId) {
@@ -151,13 +191,6 @@ public class Cell extends DynamicGameObject {
         return true;
     }
 
-    @Override
-    public void setPos(Position position)
-    {
-        mDynamicData.setPosition(position);
-        this.position = position;
-    }
-
     public boolean gainResource () {
         //System.out.println("gain start");
         //System.out.println(ctx.getMap().at(position).getResource());
@@ -189,8 +222,42 @@ public class Cell extends DynamicGameObject {
         return true;
     }
 
+    public boolean attack(Cell cell) {
+        int attack = 20;//TODO
+        cell.setEnergy(cell.getEnergy()-attack);
+        if(cell.getEnergy() < 0)
+        {
+            ctx.addToDead(cell);
+        }
+        return true;
+    }
+
     public DynamicData getDynamicData()
     {
         return mDynamicData;
+    }
+
+    public ObjectDiff getTeamViewDiffs(int teamId) {
+        return diffsForAllViews[teamId];
+    }
+
+    public ObjectDiff getGlobalViewDiffs() {
+        return diffsForAllViews[ctx.getGlobalViewIndex()];
+    }
+
+    public boolean isTMM(Cell cell) {
+        if(cell.getTeamId() == teamId)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public void die() {
+        for(ObjectDiff d:diffsForAllViews)
+        {
+            d.clearChanges();
+            d.put(ServerConstants.BLOCK_KEY_TYPE, ServerConstants.GAME_OBJECT_TYPE_DESTROYED);
+        }
     }
 }

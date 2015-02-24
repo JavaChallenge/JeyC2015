@@ -1,45 +1,51 @@
 package client.model;
 
+import client.Model;
+import com.google.gson.JsonElement;
+import data.ReceivedObjectDiff;
 import model.Position;
 import data.BlockData;
 import data.MapSize;
 import data.StaticData;
 import util.ServerConstants;
 
+import java.util.HashMap;
+
 /**
  * Created by Razi on 2/13/2015.
  */
 public class Map {
-
-    private int width, height;
     private Block[][] blocks;
+    private HashMap<String, Block> allBlocks;
 
 
-    public Map(MapSize mapSize, StaticData[] mapData) {
+    public Map(MapSize mapSize, ReceivedObjectDiff[] mapData) {
         blocks = new Block[mapSize.getHeight()][mapSize.getWidth()];
-        for(StaticData s : mapData)
+        allBlocks = new HashMap<>();
+        for(ReceivedObjectDiff s : mapData)
         {
-            if(isBlockType(s.getType())) {
-                BlockData blockData = new BlockData(s);
-                setChange(blockData);
+            JsonElement jType = s.get(ServerConstants.BLOCK_KEY_TYPE);
+            String type = Model.getGson().fromJson(jType, String.class);
+            if(isBlockType(type)) {
+                Block b = new Block(s);
+                Position pos = b.getPos();
+                blocks[pos.getY()][pos.getX()] = b;
+                allBlocks.put(b.getId(), b);
             }
         }
     }
 
-    public boolean setChange(BlockData blockData)
+    public boolean setChange(ReceivedObjectDiff d)
     {
-        if(!isBlockType(blockData.getType()))
+        JsonElement jId = d.get(ServerConstants.GAME_OBJECT_KEY_ID);
+        String id = Model.getGson().fromJson(jId, String.class);
+        Block b = allBlocks.get(id);
+        if(b == null)
         {
-            return false;
+            //nothing
         }
-        Position pos = blockData.getPosition();
-        if(at(pos) == null)
-        {
-            blocks[pos.getY()][pos.getX()] = new Block(blockData);
-        }
-        else
-        {
-            at(pos).setChange(blockData);
+        else {
+            b.setChange(d);
         }
         return true;
     }

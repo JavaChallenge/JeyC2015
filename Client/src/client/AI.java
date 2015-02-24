@@ -3,6 +3,7 @@ package client;
 import client.model.Block;
 import client.model.Cell;
 import model.Direction;
+import model.Position;
 import util.Constants;
 import util.ServerConstants;
 
@@ -32,14 +33,34 @@ public class AI {
         Random rnd = new Random();
         for(Cell c : world.getMyCells())
         {
+            boolean attack = false;
+            for(Direction dir : Direction.values())
+            {
+                Position nextPos = c.getPos().getNextPos(dir);
+                for(Cell e : world.getEnemyCells())
+                {
+                    if(e.getPos().equals(nextPos))
+                    {
+                        c.attack(dir);
+                        attack = true;
+                        break;
+                    }
+                }
+                if(attack)
+                    break;
+            }
+
             Block block = world.getMap().at(c.getPos());
+            if(attack)continue;
             if(c.getEnergy() >= Constants.CELL_MIN_ENERGY_FOR_MITOSIS && block.getType().equals(Constants.BLOCK_TYPE_MITOSIS))
             {
                 System.out.println("mitosis");
                 System.out.println(c.getEnergy());
                 c.mitosis();
             }
-            else if(c.getEnergy() < Constants.CELL_MAX_ENERGY && block.getType().equals(Constants.BLOCK_TYPE_RESOURCE) && block.getResource() > 0)
+            else if(c.getEnergy() < Constants.CELL_MAX_ENERGY &&
+                    block.getType().equals(Constants.BLOCK_TYPE_RESOURCE)
+                    && block.getResource() > 0)
             {
                 //System.out.println("gain");
                 //System.out.println(block.getResource());

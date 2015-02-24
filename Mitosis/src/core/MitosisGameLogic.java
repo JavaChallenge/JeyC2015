@@ -58,8 +58,8 @@ public class MitosisGameLogic implements GameLogic {
             teamsList.add("team" + i);
         }
 
-        ArrayList<String> viewsList = (ArrayList<String>) teamsList.clone();
-        viewsList.add(ServerConstants.VIEW_GLOBAL);
+        /*ArrayList<String> viewsList = (ArrayList<String>) teamsList.clone();
+        viewsList.add(ServerConstants.VIEW_GLOBAL);*/
 
         Map map = ctx.getMap();
 
@@ -67,7 +67,7 @@ public class MitosisGameLogic implements GameLogic {
         mapSize.setWidth(map.getWidth());
         mapSize.setHeight(map.getHeight());
 
-        ArrayList<Object> unknownMap = new ArrayList<>();
+        ArrayList<Object> uiUnknownMap = new ArrayList<>();
         int height = map.getHeight();
         int width = map.getWidth();
         for (int row = 0; row < height; row++) {
@@ -82,7 +82,23 @@ public class MitosisGameLogic implements GameLogic {
                 otherDict.put(ServerConstants.BLOCK_KEY_HEIGHT, 0);
                 otherDict.put(ServerConstants.BLOCK_KEY_RESOURCE, 0);
                 blockMap.put(ServerConstants.GAME_OBJECT_KEY_OTHER, otherDict);
-                unknownMap.add(blockMap);
+                uiUnknownMap.add(blockMap);
+            }
+        }
+
+        ArrayList<Object> clientUnknownMap = new ArrayList<>();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                //HashMap<String, Object> blockMap = new HashMap<>();
+                Block block = map.at(col, row);
+                ObjectDiff blockMap = new ObjectDiff(block.getId());
+                //blockMap.put(ServerConstants.GAME_OBJECT_KEY_ID, block.getId());
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TYPE, ServerConstants.BLOCK_TYPE_NONE);
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TURN, ServerConstants.TURN_WORLD_CREATION);
+                //blockMap.put(ServerConstants.GAME_OBJECT_KEY_POSITION, new Position(block.getX(), block.getY()));
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_POSITION, block.getPos());
+
+                clientUnknownMap.add(blockMap);
             }
         }
 
@@ -108,7 +124,7 @@ public class MitosisGameLogic implements GameLogic {
             //make client message
             Message clientMsg = new Message();
             clientMsg.setName(Message.NAME_INIT);
-            Object[] args = {info, unknownMap, staticDiff};
+            Object[] args = {info, clientUnknownMap, staticDiff};
             clientMsg.setArgs(args);
             mClientsInitialMessages.add(clientMsg);
         }
@@ -119,7 +135,7 @@ public class MitosisGameLogic implements GameLogic {
         HashMap<String, Object> info = new HashMap<>();
         info.put(ServerConstants.INFO_KEY_TURN, ctx.getTurn());
         info.put(ServerConstants.INFO_KEY_TEAMS, teamsList);
-        info.put(ServerConstants.INFO_KEY_VIEWS, viewsList);
+        info.put(ServerConstants.INFO_KEY_VIEWS, ctx.getViewsList());
         info.put(ServerConstants.INFO_KEY_MAP_SIZE, mapSize);
 
         //make map
@@ -132,7 +148,7 @@ public class MitosisGameLogic implements GameLogic {
             for (int t = 0; t < mTeams.length; t++)
             {
                 HashMap<String,Object> viewDif = new HashMap<>();
-                viewDif.put(ServerConstants.VIEW,"team" + t);
+                viewDif.put(ServerConstants.VIEW, ctx.getTeamViewNameById(t));
 
                 //calculate static diff for each team
                 ArrayList<StaticGameObject> staticDiff = new ArrayList<>();
@@ -146,7 +162,7 @@ public class MitosisGameLogic implements GameLogic {
             //Generate Global diff
             {
                 HashMap<String, Object> viewDif = new HashMap<>();
-                viewDif.put(ServerConstants.VIEW, ServerConstants.VIEW_GLOBAL);
+                viewDif.put(ServerConstants.VIEW, ctx.getGlobalViewName());
 
                 //calculate static diff for global view
                 ArrayList<StaticData> staticDiff = new ArrayList<>();
@@ -165,7 +181,7 @@ public class MitosisGameLogic implements GameLogic {
         //make ui message
         Message uiInitMsg = new Message();
         uiInitMsg.setName(Message.NAME_INIT);
-        Object[] args = {info, unknownMap, uiDiff};
+        Object[] args = {info, uiUnknownMap, uiDiff};
         uiInitMsg.setArgs(args);
 
         mUIInitialMessage = uiInitMsg;
@@ -190,12 +206,18 @@ public class MitosisGameLogic implements GameLogic {
     @Override
     public void simulateEvents(Event[] terminalEvent, Event[] environmentEvent, Event[][] clientsEvent) {
         HashMap<String, GameEvent> gameObjectEvents = new HashMap<>();
-        ArrayList<GameEvent> mitosisEvents = new ArrayList<>();
         ArrayList<GameEvent> moveEvents = new ArrayList<>();
+        ArrayList<GameEvent> attackEvents = new ArrayList<>();
+        ArrayList<GameEvent> mitosisEvents = new ArrayList<>();
         ArrayList<GameEvent> gainResourceEvents = new ArrayList<>();
 
         Map map = ctx.getMap();
 
+        ctx.getDeadCells().clear();
+        /*for(java.util.Map.Entry entry : ctx.getDeadCells().entrySet())
+        {
+
+        }*/
 
 
         if (clientsEvent != null || environmentEvent != null || terminalEvent != null) {
@@ -207,7 +229,8 @@ public class MitosisGameLogic implements GameLogic {
                     {
                         GameEvent event = new GameEvent(clientsEvent[i][j]);
                         //event.getGameObjectId() TODO CHECK OWNER
-                        if(ctx.getDynamicObject(event.getObjectId()).getTeamId() != i)
+                        String id = event.getGameObjectId();
+                        if(ctx.getDynamicObject(id) == null || ctx.getDynamicObject(id).getTeamId() != i)
                         {
                             continue;
                         }
@@ -255,6 +278,8 @@ public class MitosisGameLogic implements GameLogic {
                     case GameEvent.TYPE_MITOSIS:
                         mitosisEvents.add(event);
                         break;
+                    case GameEvent.TYPE_ATTACK:
+                        attackEvents.add(event);
                 }
             }
         }
@@ -270,6 +295,25 @@ public class MitosisGameLogic implements GameLogic {
                 continue;
             }
             cell.mitosis();
+        }
+
+
+        ctx.clearDeadCells();
+        for(GameEvent event: attackEvents)
+        {
+            Cell cell = ctx.getCell(event.getGameObjectId());
+            if(cell == null) continue;
+            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_ATTACK_DIRECTION]);
+            Position nextPos = cell.getPos().getNextPos(dir);
+            Block block = map.at(nextPos);
+            if(block.isEmpty()) continue;
+            if(block.getCell().isTMM(cell)) continue;
+            cell.attack(block.getCell());
+        }
+        for(java.util.Map.Entry entry : ctx.getDeadCells().entrySet())
+        {
+            Cell cell = (Cell)entry.getValue();
+            ctx.killCell(cell);
         }
 
         // handling move events
@@ -355,7 +399,9 @@ public class MitosisGameLogic implements GameLogic {
         //Generate client and team view output
         for (Team team: mTeams) {
             ArrayList<DynamicData> dynamics = new ArrayList<>();
+            ArrayList<ObjectDiff> dynamicDiffs = new ArrayList<>();
             ArrayList<StaticData> statics = new ArrayList<>();
+            ArrayList<ObjectDiff> staticDiffs = new ArrayList<>();
             ArrayList<Transient> transients = new ArrayList<>();
 
             ClientTurnData clientTurnData = new ClientTurnData();
@@ -375,13 +421,31 @@ public class MitosisGameLogic implements GameLogic {
                 //add dynamics
                 if(!block.isEmpty())
                 {
-                    dynamics.add(block.getCell().getDynamicData());
+                    Cell cell = block.getCell();
+                    team.addToCurrentVisibleCells(cell);
+                    dynamics.add(cell.getDynamicData());
+                    ObjectDiff objectDiff = cell.getTeamViewDiffs(team.getId());
+                    if(team.isOpp(cell) && team.findInLastVisibleCells(cell.getId()) == null)
+                    {
+                        objectDiff.put(ServerConstants.CELL_KEY_VISIBLE, 1);
+                    }
+                    if(objectDiff.isChanged())
+                    {
+                        dynamicDiffs.add(objectDiff.clone());
+                        objectDiff.clearChanges();
+                    }
                 }
 
                 //add statics
                 if(block.getLastChangeTurn() >= team.getLastVisitTurn(pos))
                 {
                     statics.add(block.getStaticData());
+                    ObjectDiff objectDiff = block.getTeamViewDiffs(team.getId());
+                    if(objectDiff.isChanged())
+                    {
+                        staticDiffs.add(objectDiff.clone());
+                        objectDiff.clearChanges();
+                    }
                 }
 
                 //add transient
@@ -390,11 +454,43 @@ public class MitosisGameLogic implements GameLogic {
                 //visit pos
                 team.visitPosition(pos);
             }
+            System.out.println("team " + team.getId() + " current : " + team.getCurrentVisibleCells().size() + " last : " + team.getLastVisibleCells().size());
+            for(java.util.Map.Entry entry : team.getLastVisibleCells().entrySet())
+            {
+                String id = (String)entry.getKey();
+                if(team.findInCurrentVisibleCells(id) == null)
+                {
+                    Cell cell = (Cell) entry.getValue();
+                    if(ctx.getDeadCells().get(id) == null)
+                    {
+                        // a live cell -> should be opponent
+                        if(!team.isOpp(cell))
+                        {
+                            System.out.println("not dead! not opp!");
+                            //What?!
+                        }
+                        else
+                        {
+                            //out of view
+                            ObjectDiff objectDiff = new ObjectDiff(id);
+                            objectDiff.put(ServerConstants.CELL_KEY_VISIBLE, 0);
+                            dynamicDiffs.add(objectDiff);
+                        }
+                    }
+                    else
+                    {
+                        // a dead cell -> team mate or opponent
+                        System.out.println("dead!");
+                        ObjectDiff objectDiff = cell.getTeamViewDiffs(team.getId());
+                        dynamicDiffs.add(objectDiff.clone());
+                        objectDiff.clearChanges();
+                    }
+                }
+            }
+            team.moveCurrentToLast();
 
-
-
-            clientTurnData.setDynamics(dynamics);
-            clientTurnData.setStatics(statics);
+            clientTurnData.setDynamics(dynamicDiffs);
+            clientTurnData.setStatics(staticDiffs);
             clientTurnData.setTransients(transients);
 
             Object[] clientArgs = {ctx.getTurn(), clientTurnData};
@@ -404,7 +500,7 @@ public class MitosisGameLogic implements GameLogic {
             clientMsg.setArgs(clientArgs);
             mClientMessages.add(clientMsg);
 
-            uiTurnData.setView("team" + team.getId());
+            uiTurnData.setView(ctx.getTeamViewNameById(team.getId()));
             uiTurnData.setDynamics(dynamics);
             uiTurnData.setStatics(statics);
             uiTurnData.setTransients(transients);
@@ -444,7 +540,7 @@ public class MitosisGameLogic implements GameLogic {
             }
         }
 
-        uiTurnData.setView( ServerConstants.VIEW_GLOBAL);
+        uiTurnData.setView( ctx.getGlobalViewName());
         uiTurnData.setDynamics(dynamics);
         uiTurnData.setStatics(statics);
         uiTurnData.setTransients(transients);

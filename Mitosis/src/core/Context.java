@@ -24,9 +24,13 @@ public class Context {
     private ClientInfo[] clientsInfo;
     private Map map;
     private Team[] teams;
+    private String[] viewsList;
+
+    private int globalViewIndex;
 
     private HashMap<String, DynamicGameObject> allDynamicObjects;
     private HashMap<String, Cell> allCells;
+    private HashMap<String, Cell> deadCells;
 
     private ArrayList<Position[]> relatedVisiblePositionsFromOdd;
     private ArrayList<Position[]> relatedVisiblePositionsFromEven;
@@ -38,6 +42,7 @@ public class Context {
         this.turn = turn;
         allDynamicObjects = new HashMap<>();
         allCells = new HashMap<>();
+        deadCells = new HashMap<>();
 
         relatedVisiblePositionsFromEven = new ArrayList<>();
         relatedVisiblePositionsFromOdd = new ArrayList<>();
@@ -60,6 +65,14 @@ public class Context {
             clientsInfo[i].setID(i);
             teams[i] = new Team(this, clientsInfo[i]);
         }
+
+        //make views
+        viewsList = new String[clientsInfo.length + 1];
+        for (int i = 0; i < teams.length; i++) {
+            viewsList[i] = clientsInfo[i].getName();
+        }
+        globalViewIndex = clientsInfo.length;
+        viewsList[globalViewIndex] = ServerConstants.VIEW_GLOBAL;
 
         //load map
         loadMap(mapDir);
@@ -200,6 +213,21 @@ public class Context {
         return true;
     }
 
+    public void addToDead(Cell cell)
+    {
+        deadCells.put(cell.getId(),cell);
+    }
+
+    public boolean killCell(Cell cell)
+    {
+        map.at(cell.getPos()).removeCell();
+        allDynamicObjects.remove(cell.getId());
+        allDynamicObjects.remove(cell.getId());
+        teams[cell.getTeamId()].removeCell(cell.getId());
+        cell.die();
+        return false;
+    }
+
     private void calculateRelationVisiblePos(int depthOfField) {
         if (relatedVisiblePositionsFromOdd.size() != relatedVisiblePositionsFromEven.size()) {
 //            System.out.println("error!! calculateRelationVisiblePos!");
@@ -318,5 +346,32 @@ public class Context {
         }
         Collections.shuffle(directions);
         return directions;
+    }
+
+    public String[] getViewsList() {
+        return viewsList;
+    }
+
+    public String getTeamViewNameById(int teamId)
+    {
+        return viewsList[teamId];
+    }
+
+    public String getGlobalViewName()
+    {
+        return viewsList[globalViewIndex];
+    }
+
+    public int getGlobalViewIndex()
+    {
+        return globalViewIndex;
+    }
+
+    public void clearDeadCells() {
+        deadCells = new HashMap<>();
+    }
+
+    public HashMap<String, Cell> getDeadCells() {
+        return deadCells;
     }
 }

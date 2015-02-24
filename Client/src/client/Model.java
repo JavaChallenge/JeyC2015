@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * Model contains data which describes current state of the game.
  */
 public class Model {
-
+    private static Gson gson = new Gson();
     private long turnTimeout = 400;
     private long turnStartTime;
     private LinkedBlockingDeque<Event> eventsToSend;
@@ -29,10 +29,10 @@ public class Model {
     }
 
     public void handleInitMessage(ReceivedMessage msg) {
-        Gson gson = new Gson();
         ClientInitInfo initInfo = gson.fromJson(msg.args.get(0), ClientInitInfo.class);
 
-        StaticData[] mapData =  gson.fromJson(msg.args.get(1), StaticData[].class);
+
+        ReceivedObjectDiff[] mapData =  gson.fromJson(msg.args.get(1), ReceivedObjectDiff[].class);
         Map map = new Map(initInfo.getMapSize(), mapData);
 
         //TODO STATIC DIFF
@@ -42,24 +42,15 @@ public class Model {
 
     public void handleTurnMessage(ReceivedMessage msg) {
         turnStartTime = System.currentTimeMillis();
-        Gson gson = new Gson();
 
         world.setTurn(gson.fromJson(msg.args.get(0), Integer.class));
-        ClientTurnData clientTurnData = gson.fromJson(msg.args.get(1), ClientTurnData.class);
+        ReceivedClientTurnData clientTurnData = gson.fromJson(msg.args.get(1), ReceivedClientTurnData.class);
 
         //set statics
         clientTurnData.getStatics().forEach(world::setStaticChange);
 
         //set dynamics
-        world.clearDynamics();
-        for(DynamicData d : clientTurnData.getDynamics()) {
-            if(d.getType().equals(ServerConstants.GAME_OBJECT_TYPE_CELL)) {
-                CellData cd = new CellData(d);
-                world.addCell(cd);
-            } else {
-                //nothing yet!
-            }
-        }
+        clientTurnData.getDynamics().forEach(world::setDynamicChange);
 
         //set transients    TODO
     }
@@ -76,25 +67,22 @@ public class Model {
         return turnTimeout - getTurnTimePassed();
     }
 
-//    public Message getClientTurn() {
-//        Event[] tEvents = eventsToSend.toArray(new Event[events.size()]);
-//        return new Message("event", tEvents);
-//        /*
-//        Object [] args = new Object[1];
-//        args[0] = gameEvents;
-//        return new Message("event", args);
-//         */
-//    }
-
     public void addEvent(Event event) {
 //        events.add(event);
-        Message msg = new Message("event", new Event[] {event});
-        sender.accept(msg);
+        if(world.getMyCellsHashMap().get(event.getObjectId()) != null) {
+            Message msg = new Message("event", new Event[]{event});
+            sender.accept(msg);
+        }
     }
 
     public World getWorld()
     {
         return world;
+    }
+
+    public static Gson getGson()
+    {
+        return gson;
     }
 
 }

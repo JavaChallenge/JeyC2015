@@ -112,7 +112,7 @@ public class JsonSocket {
      */
     public void send(Object obj) throws IOException {
         String json = mGson.toJson(obj);
-//        System.out.println("send : " + json);
+        System.out.println("send : " + json);
         byte buffer[] = json.getBytes(ENCODING);
         mOut.write(buffer, 0, buffer.length);
         mOut.write('\0');
@@ -160,7 +160,7 @@ public class JsonSocket {
             buffer[total++] = (byte) current;
         }
         String json = new String(buffer, 0, total, ENCODING);
-//        System.out.println("receive : " + json);
+        //System.out.println("receive : " + json);
         return mGson.fromJson(json, classOfInput);
     }
 

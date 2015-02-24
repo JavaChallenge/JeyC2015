@@ -2,6 +2,7 @@ package core.model;
 
 import core.Context;
 import data.BlockData;
+import data.ObjectDiff;
 import data.StaticData;
 import model.Position;
 import util.ServerConstants;
@@ -14,7 +15,7 @@ public class Block {
     private int mX, mY;
     private Position mPos;
     private int mHeight;
-    private int mResource;//TODO
+    private int mResource;
     private String mType;
     private String mId;
     private int mTurn;
@@ -22,6 +23,7 @@ public class Block {
     private Cell mCell;
     //private StaticGameObject mMyStaticObject;
     private BlockData mStaticData;
+    private ObjectDiff[] diffsForAllViews;
 
 
     public Block(Context ctx, int turn, int x, int y) {
@@ -50,12 +52,24 @@ public class Block {
 
         mStaticData = new BlockData(mId,turn,mPos, type, height, resource);
 
-        /*mMyStaticObject = new StaticGameObject(turn, mId);
-        mMyStaticObject.setPosition(new Position(mX,mY));
-        HashMap<String,Object> otherDict = new HashMap<>();
-        otherDict.put(BLOCK_KEY_HEIGHT, mHeight);
-        otherDict.put(BLOCK_KEY_RESOURCE, mResource);
-        mMyStaticObject.setOther(otherDict);*/
+        diffsForAllViews = new ObjectDiff[ctx.getViewsList().length];
+        for(int i = 0; i < ctx.getViewsList().length; i++)
+        {
+            diffsForAllViews[i] =  new ObjectDiff(mId);
+
+            diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_TYPE, mType);
+            diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_POSITION, mPos);
+            diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_TURN, mTurn);
+            diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_MIN_HEIGHT, mHeight);
+            if(mType.equals(ServerConstants.BLOCK_TYPE_RESOURCE)) {
+                diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_RESOURCE, mResource);
+            }
+            if(mType.equals(ServerConstants.BLOCK_TYPE_RESOURCE))
+            {
+                //TODO
+            }
+
+        }
     }
 
     public int getX() {
@@ -114,6 +128,13 @@ public class Block {
         mResource = resource;
         mStaticData.setResource(resource);
         mStaticData.setTurn(ctx.getTurn());
+
+        for(int i = 0; i < ctx.getViewsList().length; i++)
+        {
+            diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_RESOURCE, resource);
+            diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_TURN, ctx.getTurn());
+        }
+
         this.mTurn = ctx.getTurn();
     }
 
@@ -123,5 +144,12 @@ public class Block {
 
     public int getResource() {
         return mResource;
+    }
+    public ObjectDiff getTeamViewDiffs(int teamId) {
+        return diffsForAllViews[teamId];
+    }
+
+    public ObjectDiff getGlobalViewDiffs() {
+        return diffsForAllViews[ctx.getGlobalViewIndex()];
     }
 }

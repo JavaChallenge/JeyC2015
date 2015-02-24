@@ -4,13 +4,16 @@ package model;
  * Created by rajabzz on 2/2/15.
  */
 public class GameEvent extends Event {
+    public static final String TYPE_MOVE = "move";
+    public static final String TYPE_ATTACK = "attack";
     public static final String TYPE_MITOSIS = "mitosis";
     public static final String TYPE_GAIN_RESOURCE = "gainResource";
-    public static final String TYPE_MOVE = "move";
 
     public static final int ARG_INDEX_MOVE_DIRECTION = 0;
+    public static final int ARG_INDEX_ATTACK_DIRECTION = 0;
 
     public static final int ARGS_NUMBER_MOVE = 1;
+    public static final int ARGS_NUMBER_ATTACK = 1;
 
     //private String type; // the type of the event
     //private String objectId; // to recognize which GameObject this event is for
@@ -30,6 +33,9 @@ public class GameEvent extends Event {
         switch (type){
             case TYPE_MOVE:
                 argsLen = ARGS_NUMBER_MOVE;
+                break;
+            case TYPE_ATTACK:
+                argsLen = ARGS_NUMBER_ATTACK;
                 break;
             case TYPE_GAIN_RESOURCE:
                 break;

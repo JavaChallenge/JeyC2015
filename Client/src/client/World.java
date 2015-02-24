@@ -4,20 +4,17 @@ package client;
 import client.model.Cell;
 import client.model.Map;
 
+import com.google.gson.JsonElement;
 import data.*;
 import util.ServerConstants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Razi on 2/10/2015.
  */
 public class World {
-
-    /*class MapSize {
-        int height;
-        int width;
-    }*/
 
     private Model model;
 
@@ -26,27 +23,16 @@ public class World {
     private String myName;
 
     private MapSize mapSize;
-    //private int mapWidth;
-    //private int mapHeight;
     private Map map;
 
     private int turn;
 
-    private ArrayList<Cell> allCells;
-    private ArrayList<Cell> myCells;
-    private ArrayList<Cell> enemyCells;
+    private HashMap<String, Cell> allCells;
+    private HashMap<String, Cell> myCells;
+    private HashMap<String, Cell> enemyCells;
 
-    /*public World(ArrayList<String>teams, int myId, String myName, int mapWidth, int mapHeight, Map map, int turn)
-    {
-        this.teams = new String[teams.size()];
-        this.teams = teams.toArray(this.teams);
-        this.myId = myId;
-        this.myName = myName;
-        this. mapWidth = mapWidth;
-        this.mapHeight = mapHeight;
-        this.map = map;
-        this.turn = turn;
-    }*/
+    private HashMap<String, Cell> allVisitedCells;
+    private HashMap<String, Cell> invisibleCells;
 
     public World(Model model, ClientInitInfo initInfo, Map map)
     {
@@ -57,6 +43,13 @@ public class World {
         this.mapSize = initInfo.getMapSize();
         this.map = map;
         this.turn = initInfo.getTurn();
+
+        allCells = new HashMap<>();
+        myCells = new HashMap<>();
+        enemyCells = new HashMap<>();
+
+        allVisitedCells = new HashMap<>();
+        invisibleCells = new HashMap<>();
     }
 
     public String[] getTeams() {
@@ -71,13 +64,6 @@ public class World {
         return myName;
     }
 
-    /*public int getMapWidth() {
-        return mapWidth;
-    }
-
-    public int getMapHeight() {
-        return mapHeight;
-    }*/
     public MapSize getMapSize()
     {
         return mapSize;
@@ -95,54 +81,169 @@ public class World {
         this.turn = turn;
     }
 
-    public void clearDynamics()
-    {
-        allCells = new ArrayList<>();
-        myCells = new ArrayList<>();
-        enemyCells = new ArrayList<>();
-    }
 
-    public void addCell(CellData cellData)
+    public void addCell(Cell cell)
     {
-        Cell cell = new Cell(model, cellData.getId(), cellData.getPosition(),cellData.getTeamId(),cellData.getEnergy());
-        allCells.add(cell);
-        //System.out.println(cellData.getTeamId());
-        //System.out.println(myId);
-        if(cellData.getTeamId() == myId) {
-            myCells.add(cell);
+        allCells.put(cell.getId(), cell);
+        allVisitedCells.put(cell.getId(), cell);
+        if(cell.getTeamId() == myId) {
+            myCells.put(cell.getId(), cell);
         }
         else
         {
-            enemyCells.add(cell);
+            enemyCells.put(cell.getId(), cell);
+        }
+    }
+
+    public void visibleCell(Cell cell)
+    {
+        allCells.put(cell.getId(), cell);
+        allVisitedCells.put(cell.getId(), cell);
+        if(cell.getTeamId() == myId) {
+            myCells.put(cell.getId(), cell);
+        }
+        else
+        {
+            enemyCells.put(cell.getId(), cell);
+        }
+        invisibleCells.remove(cell.getId());
+    }
+
+    public void invisibleCell(Cell cell)
+    {
+        String id = cell.getId();
+        invisibleCells.put(cell.getId(),cell);
+        if(allCells.containsKey(id))
+        {
+            allCells.remove(id);
+        }
+        if(myCells.containsKey(id))
+        {
+            myCells.remove(id);
+        }
+        if(enemyCells.containsKey(id))
+        {
+            enemyCells.remove(id);
+        }
+    }
+
+    public void killCell(Cell cell)
+    {
+        String id = cell.getId();
+        if(allVisitedCells.containsKey(id))
+        {
+            allVisitedCells.remove(id);
+        }
+        if(allCells.containsKey(id))
+        {
+            allCells.remove(id);
+        }
+        if(myCells.containsKey(id))
+        {
+            myCells.remove(id);
+        }
+        if(enemyCells.containsKey(id))
+        {
+            enemyCells.remove(id);
+        }
+        if(invisibleCells.containsKey(id))
+        {
+            invisibleCells.remove(id);
         }
     }
 
     public ArrayList<Cell> getAllCells() {
-        return allCells;
+        return new ArrayList<>(allCells.values());
     }
 
     public ArrayList<Cell> getMyCells() {
-        return myCells;
+        return new ArrayList<>(myCells.values());
     }
 
     public ArrayList<Cell> getEnemyCells() {
+        return new ArrayList<>(enemyCells.values());
+    }
+
+    public HashMap<String, Cell>getAllCellsHashMap()
+    {
+        return allCells;
+    }
+
+    public HashMap<String, Cell>getMyCellsHashMap()
+    {
+        return myCells;
+    }
+    public HashMap<String, Cell>getEnemyCellsHashMap()
+    {
         return enemyCells;
     }
 
-    public void setStaticChange(StaticData s) {
-        switch (s.getType())
+
+    public void setStaticChange(ReceivedObjectDiff d) {
+        map.setChange(d);
+    }
+
+    public void setDynamicChange(ReceivedObjectDiff d)
+    {
+
+        JsonElement jId = d.get(ServerConstants.GAME_OBJECT_KEY_ID);
+        String id = model.getGson().fromJson(jId, String.class);
+        Cell c = allVisitedCells.get(id);
+        if(c == null)
         {
-            case ServerConstants.BLOCK_TYPE_NONE:
-            case ServerConstants.BLOCK_TYPE_NORMAL:
-            case ServerConstants.BLOCK_TYPE_MITOSIS:
-            case ServerConstants.BLOCK_TYPE_RESOURCE:
-            case ServerConstants.BLOCK_TYPE_IMPASSABLE:
-                BlockData blockData = new BlockData(s);
-                map.setChange(blockData);
-                break;
-            default:
-                //nothing yet !
-                break;
+            // if not exist
+            Cell cell = new Cell(model, d);
+            addCell(cell);
         }
+        else
+        {
+            JsonElement jType = d.get(ServerConstants.GAME_OBJECT_KEY_TYPE);
+            if(jType != null && model.getGson().fromJson(jType, String.class).equals(ServerConstants.GAME_OBJECT_TYPE_DESTROYED))
+            {
+                //cell is dead
+                killCell(c);
+            }
+            else if(c.getTeamId() != getMyId())
+            {
+                //is opponent
+                JsonElement jVis = d.get(ServerConstants.CELL_KEY_VISIBLE);
+                if(jVis != null)
+                {
+                    int vis = model.getGson().fromJson(jVis, Integer.class);
+                    if(vis == 0)
+                    {
+                        //cell exited from visible area
+                        //TODO
+                        invisibleCell(c);
+                    }
+                    else
+                    {
+                        //cell return to visible area
+                        //TODO
+                        visibleCell(c);
+                        c.setChange(d);
+                    }
+                }
+                else
+                {
+                    c.setChange(d);
+                }
+            }
+            else
+            {
+                //is team mate
+                c.setChange(d);
+            }
+        }
+        /*Cell c = allCells.get(id);
+        if(c == null)
+        {
+            Cell cell = new Cell(model, d);
+            addCell(cell);
+        }
+        else
+        {
+            c.setChange(d);
+        }*/
     }
 }

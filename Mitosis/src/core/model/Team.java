@@ -1,11 +1,13 @@
 package core.model;
 
 import core.Context;
+import core.MitosisGameLogic;
 import model.Position;
 import server.core.model.ClientInfo;
 import util.ServerConstants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by rajabzz on 2/2/15.
@@ -13,18 +15,23 @@ import java.util.ArrayList;
 public class Team {
     private Context ctx;
     private ClientInfo mInfo;
-    private ArrayList<Cell> mCells;
+    //private ArrayList<Cell> mCells;
+    private HashMap<String, Cell> mCells;
+    private HashMap<String, Cell> lastVisibleCells;
+    private HashMap<String, Cell> currentVisibleCells;
     private int mScore;
     int[][] viewHistory;
     //private int mId;
 
     public Team(Context ctx, ClientInfo clientInfo)
     {
-
         this.ctx = ctx;
         mInfo = clientInfo;
-        mCells = new ArrayList<>();
+        //mCells = new ArrayList<>();
+        mCells = new HashMap<>();
 
+        lastVisibleCells = new HashMap<>();
+        currentVisibleCells = new HashMap<>();
     }
 
     public void makeMap()
@@ -46,14 +53,13 @@ public class Team {
     }
 
     public Cell getCellById(String id) {//TODO order
-        for (Cell cell: mCells) {
-            if (cell.getId().equals(id))
-                return cell;
-        }
-        return null;
+        return mCells.get(id);
     }
 
     public ArrayList<Cell> getCells() {
+        return new ArrayList<>(mCells.values());
+    }
+    public HashMap<String, Cell> getCellsHashMap() {
         return mCells;
     }
 
@@ -62,7 +68,12 @@ public class Team {
     }
 
     public void addCell(Cell c) {
-        mCells.add(c);
+        mCells.put(c.getId(), c);
+    }
+
+    public void removeCell(String id)
+    {
+        mCells.remove(id);
     }
 
     public int getLastVisitTurn(Position pos)
@@ -73,5 +84,36 @@ public class Team {
     public void visitPosition(Position pos)
     {
         viewHistory[pos.getY()][pos.getX()] = ctx.getTurn();
+    }
+
+    public void addToCurrentVisibleCells(Cell cell) {
+        currentVisibleCells.put(cell.getId(), cell);
+    }
+
+    public boolean isOpp(Cell cell) {
+        if(cell.teamId == mInfo.getID())
+            return false;
+        return true;
+    }
+
+    public Cell findInLastVisibleCells(String id) {
+        return lastVisibleCells.get(id);
+    }
+
+    public HashMap<String, Cell> getLastVisibleCells() {
+        return lastVisibleCells;
+    }
+
+    public Cell findInCurrentVisibleCells(String id) {
+        return currentVisibleCells.get(id);
+    }
+
+    public HashMap<String, Cell> getCurrentVisibleCells() {
+        return currentVisibleCells;
+    }
+
+    public void moveCurrentToLast() {
+        lastVisibleCells = currentVisibleCells;
+        currentVisibleCells = new HashMap<>();
     }
 }

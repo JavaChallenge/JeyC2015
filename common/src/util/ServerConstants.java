@@ -13,12 +13,25 @@ public class ServerConstants {
     public static final String BLOCK_TYPE_RESOURCE = "resource";
     public static final String BLOCK_TYPE_IMPASSABLE = "impassable";
 
+    public static final String BLOCK_KEY_TURN = "turn";
+    public static final String BLOCK_KEY_TYPE = "type";
+    public static final String BLOCK_KEY_JUMP_IMP = "jump";
     public static final String BLOCK_KEY_HEIGHT = "height";
+    public static final String BLOCK_KEY_ATTACK_IMP = "attack";
     public static final String BLOCK_KEY_RESOURCE = "resource";
+    public static final String BLOCK_KEY_MIN_HEIGHT = "min_height";
+    public static final String BLOCK_KEY_DEPTH_OF_FIELD_IMP = "dof";
+    public static final String BLOCK_KEY_GAIN_RATE_IMP = "gain_rate";
 
+    public static final String CELL_KEY_JUMP = "jump";
     public static final String CELL_KEY_ENERGY = "energy";
+    public static final String CELL_KEY_ATTACK = "attack";
+    public static final String CELL_KEY_VISIBLE = "visible";
+    public static final String CELL_KEY_DEPTH_OF_FIELD = "dof";
+    public static final String CELL_KEY_GAIN_RATE = "gain_rate";
 
     public static final String GAME_OBJECT_TYPE_CELL = "cell";
+    public static final String GAME_OBJECT_TYPE_DESTROYED = "destroyed";
 
     public static final String GAME_OBJECT_KEY_ID = "id";
     public static final String GAME_OBJECT_KEY_TURN = "turn";
