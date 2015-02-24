@@ -1,12 +1,12 @@
 package core.model;
 
 import core.Context;
-import data.CellData;
-import data.DynamicData;
-import data.ObjectDiff;
+import core.data.DynamicGameObject;
+import core.data.CellData;
+import core.data.DynamicData;
+import core.data.ObjectDiff;
 import model.Direction;
 import model.Position;
-import server.Server;
 import util.Constants;
 import util.ServerConstants;
 import util.UID;

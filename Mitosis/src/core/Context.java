@@ -2,11 +2,11 @@ package core;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import core.data.DynamicGameObject;
 import core.model.*;
 import core.model.Map;
 import model.*;
 import server.core.model.ClientInfo;
-import util.Constants;
 import util.ServerConstants;
 
 import java.io.*;

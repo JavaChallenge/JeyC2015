@@ -1,4 +1,4 @@
-package data;
+package core.data;
 
 import model.Position;
 import util.ServerConstants;
@@ -8,7 +8,7 @@ import java.util.HashMap;
 /**
  * Created by Razi on 2/12/2015.
  */
-public class CellData extends DynamicData{
+public class CellData extends DynamicData {
     /*public class Other{
         int teamId;
         int energy;

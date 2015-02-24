@@ -1,7 +1,5 @@
-package core.model;
+package core.data;
 
-
-import model.GameObject;
 
 /**
  * Created by rajabzz on 2/3/15.
@@ -14,7 +12,7 @@ public class DynamicGameObject extends GameObject {
 
     final protected int teamId;
 
-    DynamicGameObject(int teamId) {
+    public DynamicGameObject(int teamId) {
         this.teamId = teamId;
     }
 

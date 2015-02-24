@@ -1,6 +1,4 @@
-package model;
-
-import model.GameObject;
+package core.data;
 
 /**
  * Created by rajabzz on 2/3/15.

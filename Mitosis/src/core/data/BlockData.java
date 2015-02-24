@@ -1,4 +1,4 @@
-package data;
+package core.data;
 
 import model.Position;
 import util.ServerConstants;

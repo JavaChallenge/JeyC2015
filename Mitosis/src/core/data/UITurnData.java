@@ -1,7 +1,5 @@
-package core.model;
+package core.data;
 
-import data.DynamicData;
-import data.StaticData;
 import model.Transient;
 
 import java.util.ArrayList;

@@ -1,10 +1,8 @@
-package data;
+package core.data;
 
-import com.google.gson.JsonElement;
 import util.ServerConstants;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 /**
  * Created by Razi on 2/23/2015.

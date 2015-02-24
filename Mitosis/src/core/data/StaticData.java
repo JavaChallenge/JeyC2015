@@ -1,4 +1,4 @@
-package data;
+package core.data;
 
 import model.Position;
 
@@ -19,7 +19,7 @@ public class StaticData {
         this(staticData.id, staticData.turn, staticData.position, staticData.type, staticData.other);
     }
 
-    StaticData (String id, int turn, Position position, String type)
+    public StaticData(String id, int turn, Position position, String type)
     {
         this.id = id;
         this.turn = turn;

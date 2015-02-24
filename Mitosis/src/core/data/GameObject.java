@@ -1,4 +1,4 @@
-package model;
+package core.data;
 
 import model.Position;
 

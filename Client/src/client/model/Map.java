@@ -6,7 +6,6 @@ import data.ReceivedObjectDiff;
 import model.Position;
 import data.BlockData;
 import data.MapSize;
-import data.StaticData;
 import util.ServerConstants;
 
 import java.util.HashMap;

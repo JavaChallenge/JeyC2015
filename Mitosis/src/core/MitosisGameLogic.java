@@ -1,13 +1,12 @@
 package core;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import core.data.*;
 import core.model.*;
 import model.*;
 import core.model.Map;
 import data.*;
-import server.core.model.Configs;
 import util.ServerConstants;
 import server.Server;
 import server.core.GameLogic;
@@ -15,7 +14,6 @@ import server.core.model.ClientInfo;
 import model.Event;
 import network.data.Message;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;

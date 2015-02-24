@@ -1,9 +1,9 @@
 package core.model;
 
 import core.Context;
-import data.BlockData;
-import data.ObjectDiff;
-import data.StaticData;
+import core.data.BlockData;
+import core.data.ObjectDiff;
+import core.data.StaticData;
 import model.Position;
 import util.ServerConstants;
 import util.UID;
