@@ -5,14 +5,15 @@ import java.util.Scanner;
  */
 public class TerminalApp {
 
+    public static final Scanner globalScanner = new Scanner(System.in);
+
     public static void main(String[] args) {
         Terminal terminal = Terminal.getInstance();
 
-        Scanner scanner = new Scanner(System.in);
         System.out.println("<< JGFramework's Terminal >>");
 
-        while (true) {
-            String command = scanner.nextLine();
+        while (globalScanner.hasNext()) {
+            String command = globalScanner.nextLine();
             terminal.handleCommand(command);
         }
     }

@@ -2,6 +2,7 @@ package network;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import util.Log;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,6 +32,10 @@ import java.nio.charset.Charset;
  *
  */
 public class JsonSocket {
+
+    private static final int MAX_LENGTH_BYTES = 10 * 1024 * 1024;
+
+    public static final String TAG = "JsonSocket";
 
     public static final Charset ENCODING = Charset.forName("UTF-8");
 
@@ -146,6 +151,8 @@ public class JsonSocket {
         int length = 1000, total = 0, current;
         byte buffer[] = new byte[length];
         while (true) {
+            if (total > MAX_LENGTH_BYTES)
+                return null;
             current = mIn.read();
             if (current == -1)
                 throw new IOException("EOF reached.");
@@ -160,8 +167,14 @@ public class JsonSocket {
             buffer[total++] = (byte) current;
         }
         String json = new String(buffer, 0, total, ENCODING);
-        //System.out.println("receive : " + json);
-        return mGson.fromJson(json, classOfInput);
+//        System.out.println("receive : " + json);
+        T result = null;
+        try {
+            result = mGson.fromJson(json, classOfInput);
+        } catch (Exception e) {
+            Log.i(TAG, "Parse error.", e);
+        }
+        return result;
     }
 
 }

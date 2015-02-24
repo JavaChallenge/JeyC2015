@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import server.core.model.ClientInfo;
 import model.Event;
+import server.core.model.Configs;
 import server.network.ClientNetwork;
 import server.network.UINetwork;
 import network.data.Message;
@@ -40,8 +41,6 @@ import java.util.concurrent.*;
  */
 public class GameHandler {
 
-    private static final String RESOURCE_PATH_OUTPUT_HANDLER = "resources/game_handler/output_handler.conf";
-    private static final String RESOURCE_PATH_TURN_TIMEOUT = "resources/game_handler/turn_timeout.conf";
     private final long GAME_LOGIC_SIMULATE_TIMEOUT;
     private final long GAME_LOGIC_TURN_TIMEOUT = 1000;
     private final long CLIENT_RESPONSE_TIME;
@@ -64,26 +63,15 @@ public class GameHandler {
      *     {@link server.network.ClientNetwork ClientNetwork} classes. Then sets some configurations of the loops
      *     within the "turn_timeout.conf" file ({@see https://github.com/JavaChallenge/JGFramework/wiki wiki}).
      * </p>
-     * @param clientNetwork Network which the game will contact to the clients through
-     * @param uiNetwork Network which the game will contact to the UI through
      */
-    public GameHandler(ClientNetwork clientNetwork, UINetwork uiNetwork) {
-        mClientNetwork = clientNetwork;
-        mUINetwork = uiNetwork;
+    public GameHandler() {
+        mClientNetwork = new ClientNetwork();
+        mUINetwork = new UINetwork(Configs.getConfigs().ui.token);
         terminalEventsQueue = new LinkedBlockingQueue<>();
 
-        Gson gson = new Gson();
-        try {
-            File file = new File(RESOURCE_PATH_TURN_TIMEOUT);
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            TimeConfig timeConfig = gson.fromJson(bufferedReader, TimeConfig.class);
-            GAME_LOGIC_SIMULATE_TIMEOUT = timeConfig.getClientResponseTime();
-            CLIENT_RESPONSE_TIME = timeConfig.getClientResponseTime();
-        } catch (FileNotFoundException notFound) {
-            throw new RuntimeException("turn_timeout config file not found");
-        } catch (JsonParseException e) {
-            throw new RuntimeException("turn_time config file does not meet expected syntax");
-        }
+        Configs.TimeConfig timeConfig = Configs.getConfigs().turnTimeout;
+        GAME_LOGIC_SIMULATE_TIMEOUT = timeConfig.simulateTimeout;
+        CLIENT_RESPONSE_TIME = timeConfig.clientResponseTime;
     }
 
     /**
@@ -96,22 +84,12 @@ public class GameHandler {
      * </p>
      */
     public void init() {
-        OutputHandlerConfig outputHandlerConfig;
-        Gson gson = new Gson();
-        try {
-            File file = new File(RESOURCE_PATH_OUTPUT_HANDLER);
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            outputHandlerConfig = gson.fromJson(bufferedReader, OutputHandlerConfig.class);
-        } catch (FileNotFoundException notFound) {
-            throw new RuntimeException("Output handler config file not found");
-        } catch (JsonParseException e) {
-            throw new RuntimeException("Output handler config file does not meet expected syntax");
-        }
+        Configs.OutputHandlerConfig outputHandlerConfig = Configs.getConfigs().outputHandler;
         mOutputController = new OutputController(outputHandlerConfig.sendToUI,
                                                     mUINetwork,
                                                     outputHandlerConfig.timeInterval,
                                                     outputHandlerConfig.sendToFile,
-                                                    outputHandlerConfig.getFile(),
+                                                    new File(outputHandlerConfig.filePath),
                                                     outputHandlerConfig.bufferSize);
     }
 
@@ -144,6 +122,15 @@ public class GameHandler {
     }
 
     /**
+     * Getter of the {@link server.core.OutputController} class instance.
+     *
+     * @return output controller
+     */
+    public OutputController getOutputController() {
+        return mOutputController;
+    }
+
+    /**
      * Setter of the {@link server.core.model.ClientInfo ClientInfo} instance stored in the class in order to recognize
      * the clients from each other
      * @param clientsInfo Array of information of the clients held in the class
@@ -169,8 +156,10 @@ public class GameHandler {
      * </p>
      */
     public void shutdown() {
-        mLoop.shutdown();
-        mOutputController.shutdown();
+        if (mLoop != null)
+            mLoop.shutdown();
+        if (mOutputController != null)
+            mOutputController.shutdown();
     }
 
     /**
@@ -212,6 +201,7 @@ public class GameHandler {
                 mGameLogic.simulateEvents(terminalEvents, environmentEvents, clientEvents);
                 mGameLogic.generateOutputs();
                 if (mGameLogic.isGameFinished()) {
+                    mGameLogic.terminate();
                     Message shutdown = new Message(Message.NAME_SHUTDOWN, new Object[] {});
                     for (int i = 0; i < mClientsInfo.length; i++) {
                         mClientNetwork.queue(i, shutdown);
@@ -257,12 +247,9 @@ public class GameHandler {
 
                 return null;
             };
-//            RunnableFuture<Void> runnableSimulate = new FutureTask<>(simulate);
-//            ExecutorService service = Executors.newSingleThreadExecutor();
 
             while (!shutdownRequest) {
                 long start = System.currentTimeMillis();
-//                System.out.println(start);
                 try {
                     simulate.call();
                 } catch (Exception e) {
@@ -281,6 +268,10 @@ public class GameHandler {
                     }
                 }
             }
+
+            synchronized (this) {
+                notifyAll();
+            }
         }
 
         /**
@@ -292,58 +283,12 @@ public class GameHandler {
         }
     }
 
-    /**
-     * The template of the "output_handler.conf" JSON file.
-     * <p>
-     *     This class could be filled by a {@link com.google.gson.Gson Gson} object. The properties of class are
-     *     normally accessed through {@link server.core.GameHandler#init() init()} method.
-     * </p>
-     */
-    private class OutputHandlerConfig {
-        private boolean sendToUI;
-        private int timeInterval;
-        private boolean sendToFile;
-        private String filePath;
-        private int bufferSize;
-
-        public OutputHandlerConfig(boolean sendToUI,
-                                   int timeInterval,
-                                   boolean sendToFile,
-                                   String filePath,
-                                   int bufferSize) {
-            this.sendToUI = sendToUI;
-            this.timeInterval = timeInterval;
-            this.sendToFile = sendToFile;
-            this.filePath = filePath;
-            this.bufferSize = bufferSize;
-        }
-        private File getFile() {
-            return new File(filePath);
-        }
+    public void waitForFinish() throws InterruptedException {
+        final Loop loop = mLoop;
+        if (loop != null)
+            synchronized (loop) {
+                loop.wait();
+            }
     }
 
-    /**
-     * The template of the "turn_timeout.conf" JSON file.
-     * <p>
-     *     This class could be filled by a {@link com.google.gson.Gson Gson} object. The properties of class are
-     *     normally accessed through {@link server.core.GameHandler#GameHandler GameHandler Constructor} method.
-     * </p>
-     */
-    private static class TimeConfig {
-        private long clientResponseTime;
-        private long simulateTimeout;
-
-        public TimeConfig(long clientResponseTime,long uiResponseTime) {
-            clientResponseTime = clientResponseTime;
-            simulateTimeout = uiResponseTime;
-        }
-
-        public long getClientResponseTime() {
-            return clientResponseTime;
-        }
-
-        public long getUIResponseTime() {
-            return simulateTimeout;
-        }
-    }
 }

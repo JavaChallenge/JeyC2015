@@ -179,8 +179,10 @@ public class OutputController implements Runnable {
      * </p>
      */
     public void shutdown() {
-        fileWriter.close();
-        timer.cancel();
+        if (fileWriter != null)
+            fileWriter.close();
+        if (timer != null)
+            timer.cancel();
     }
 
     /**
@@ -357,24 +359,26 @@ public class OutputController implements Runnable {
          * </p>
          */
         private void sendToUINetwork(Message message) {
-            Callable<Void> run = () -> {
-                uiNetwork.sendBlocking(message);
-                return null;
-            };
-            RunnableFuture runnableFuture = new FutureTask<>(run);
-            ExecutorService service = Executors.newSingleThreadExecutor();
-            service.execute(runnableFuture);
-            try {
-                runnableFuture.get(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
-                sent = true;
-            } catch (ExecutionException execution) {
-                throw new RuntimeException("Connection to the UI failed in execution");
-            } catch (TimeoutException timeOut) {
-                runnableFuture.cancel(true);
-            } catch (InterruptedException interrupted) {
-                throw new RuntimeException("Connection to the UI interrupted");
+            if (sendToUI) {
+                Callable<Void> run = () -> {
+                    uiNetwork.sendBlocking(message);
+                    return null;
+                };
+                RunnableFuture runnableFuture = new FutureTask<>(run);
+                ExecutorService service = Executors.newSingleThreadExecutor();
+                service.execute(runnableFuture);
+                try {
+                    runnableFuture.get(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
+                    sent = true;
+                } catch (ExecutionException execution) {
+                    throw new RuntimeException("Connection to the UI failed in execution");
+                } catch (TimeoutException timeOut) {
+                    runnableFuture.cancel(true);
+                } catch (InterruptedException interrupted) {
+                    throw new RuntimeException("Connection to the UI interrupted");
+                }
+                service.shutdown();
             }
-            service.shutdown();
         }
     }
 }

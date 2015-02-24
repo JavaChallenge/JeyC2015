@@ -110,14 +110,20 @@ public final class UINetwork extends NetServer {
     @Override
     protected void accept(JsonSocket client) {
         executor.submit(() -> {
+            boolean valid = false;
             try {
-                verifyClient(client);
+                valid = verifyClient(client);
             } catch (Exception e) {
-                // if anything was wrong close the client!
-                Log.i(TAG, "Client rejected.", e);
+                valid = false;
+            }
+            if (valid) {
+                changeClient(client);
+            } else {
+                Log.i(TAG, "Client rejected.");
                 try {
                     client.close();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
     }
@@ -129,17 +135,12 @@ public final class UINetwork extends NetServer {
      * @throws Exception if verification is failed
      * @see #accept
      */
-    private void verifyClient(JsonSocket client) throws Exception {
-        // get the token, timeout is 1000 seconds
+    private boolean verifyClient(JsonSocket client) throws Exception {
         Future<Message> futureMessage
                 = executor.submit(() -> client.get(Message.class));
         Message token = futureMessage.get(1000, TimeUnit.SECONDS);
-        // check the token
-        if (!"token".equals(token.name) || !mToken.equals(token.args[0]))
-            throw new Exception("UINetwork: Client rejected, " +
-                    "token is not correct.");
-        // so the token is correct!
-        changeClient(client);
+        return token != null && "token".equals(token.name) && token.args != null
+                && token.args.length >= 1 && mToken.equals(token.args[0]);
     }
 
     /**

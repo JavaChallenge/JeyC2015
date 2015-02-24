@@ -116,4 +116,12 @@ public class Team {
         lastVisibleCells = currentVisibleCells;
         currentVisibleCells = new HashMap<>();
     }
+
+    public int getScore() {
+        return mScore;
+    }
+
+    public void setScore(int mScore) {
+        this.mScore = mScore;
+    }
 }

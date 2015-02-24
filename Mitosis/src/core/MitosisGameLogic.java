@@ -1,9 +1,13 @@
 package core;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import core.model.*;
 import model.*;
 import core.model.Map;
 import data.*;
+import server.core.model.Configs;
 import util.ServerConstants;
 import server.Server;
 import server.core.GameLogic;
@@ -11,7 +15,11 @@ import server.core.model.ClientInfo;
 import model.Event;
 import network.data.Message;
 
+import javax.xml.bind.SchemaOutputResolver;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -19,8 +27,10 @@ import java.util.*;
  */
 public class MitosisGameLogic implements GameLogic {
 
-    private final long GAME_LONG_TIME_TURN = 500;
+    private final long GAME_LONG_TIME_TURN;
 
+    private static final Charset CONFIG_ENCODING = Charset.forName("UTF-8");
+    private static final String RESOURCE_PATH_GAME = "resources/mitosis/game.conf";
     private static final String RESOURCE_PATH_CLIENTS = "resources/mitosis/clients.conf";
 
 
@@ -43,9 +53,10 @@ public class MitosisGameLogic implements GameLogic {
     public MitosisGameLogic(String[] options) throws IOException {
         super();
 
-        ctx = new Context(ServerConstants.TURN_INIT, options[0], RESOURCE_PATH_CLIENTS);
+        String gameConfig = new String(Files.readAllBytes(new File(RESOURCE_PATH_GAME).toPath()), CONFIG_ENCODING);
+        GAME_LONG_TIME_TURN = new Gson().fromJson(gameConfig, JsonObject.class).get("turn").getAsLong();
 
-        Map map = ctx.getMap();
+        ctx = new Context(ServerConstants.TURN_INIT, options[0], RESOURCE_PATH_CLIENTS);
 
         mTeams = ctx.getTeams();
     }
@@ -371,18 +382,14 @@ public class MitosisGameLogic implements GameLogic {
             }
         }
 
-        /*for (GameEvent event: gainResourceEvents) {
-            Cell cell = null;
-            for (Team team: mTeams) {
-                if (team.getCellById(event.getGameObjectId()) != null)
-                    cell = team.getCellById(event.getGameObjectId());
+        for(Team team : mTeams)
+        {
+            int score = 0;
+            for (Cell cell: team.getCells()) {
+                score += cell.getEnergy();
             }
-            if (cell == null) continue;
-
-            // check if the location of the cell is of type resource
-            if (map.at(cell.getPos().x, cell.getPos().y).equals(Block.TYPE_RESOURCE))
-                cell.gainResource();
-        }*/
+            team.setScore(score);
+        }
         ctx.incTurn();
     }
 
@@ -591,5 +598,20 @@ public class MitosisGameLogic implements GameLogic {
     @Override
     public boolean isGameFinished() {
         return ctx.getTurn() >= GAME_LONG_TIME_TURN;
+    }
+
+    @Override
+    public void terminate()
+    {
+        if(mTeams.length > 0) {
+            for (int i = 0; i < mTeams.length; i++) {
+                if(i > 0)
+                {
+                    System.out.print(", ");
+                }
+                System.out.print(mTeams[i].getScore());
+            }
+            System.out.println();
+        }
     }
 }

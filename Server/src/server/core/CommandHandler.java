@@ -4,6 +4,7 @@ import server.Server;
 import model.Event;
 import server.network.TerminalNetwork;
 import network.data.Message;
+import util.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class CommandHandler implements TerminalNetwork.TerminalInterface {
 //        defineCommand("resumeGame", this::cmdResumeGame);
 //        defineCommand("endGame", this::cmdEndGame);
         defineCommand("exit", this::cmdExit);
+        defineCommand("waitForFinish", this::waitForFinish);
     }
 
     public void defineCommand(String command, UnaryOperator<Message> handler) {
@@ -88,6 +90,17 @@ public class CommandHandler implements TerminalNetwork.TerminalInterface {
         System.exit(0);
         return new Message(TerminalNetwork.REPORT_NAME, new Object[] {
                 new Object[] {"Game exited successfully!"}
+        });
+    }
+
+    public Message waitForFinish(Message cmd) {
+        try {
+            mServer.getGameHandler().waitForFinish();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Wait for finish interrupted.");
+        }
+        return new Message(TerminalNetwork.REPORT_NAME, new Object[] {
+                new Object[] {"Game finished!"}
         });
     }
 

@@ -86,4 +86,9 @@ public class Position {
         return h;
     }
 
+
+    @Override
+    public String toString() {
+        return "["+x+","+y+"]";
+    }
 }

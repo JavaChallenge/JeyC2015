@@ -67,4 +67,6 @@ public interface GameLogic {
     public Event[] makeEnvironmentEvents();
 
     public boolean isGameFinished();
+
+    public void terminate();
 }

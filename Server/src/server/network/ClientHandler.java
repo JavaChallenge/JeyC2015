@@ -71,6 +71,11 @@ public class ClientHandler {
     private final LinkedBlockingDeque<Message> messagesToSend;
 
     /**
+     * Message quuee.
+     */
+    private final ArrayList<Message> messagesQueued;
+
+    /**
      * Number of exceptions occurred during communication.
      */
     private int numOfExceptions;
@@ -82,6 +87,7 @@ public class ClientHandler {
     public ClientHandler() {
         messagesToSend = new LinkedBlockingDeque<>();
         receivedMessages = new ArrayList<>();
+        messagesQueued = new ArrayList<>();
         clientLock = new Object();
         messageNotifier = new Object();
     }
@@ -93,22 +99,35 @@ public class ClientHandler {
      * @param msg    message to send.
      */
     public void queue(Message msg) {
-        messagesToSend.add(msg);
+        synchronized (messagesQueued) {
+            messagesQueued.add(msg);
+        }
     }
 
     /**
-     * Sends last queued message.
+     * Sends all queued messages (non-blocking).
      */
     public void send() {
-        if (terminateFlag)
-            return;
-        try {
-            client.send(messagesToSend.remove());
-        } catch (NoSuchElementException e) {
-            Log.i(TAG, "no message is queued for this client", e);
-        } catch (Exception e) {
-            Log.i(TAG, "message sending failure", e);
+        synchronized (messagesQueued) {
+            messagesToSend.addAll(messagesQueued);
+            messagesQueued.clear();
         }
+    }
+
+    /**
+     * Returns a runnable which sends messages when it is ran.
+     */
+    public Runnable getSender() {
+        return () -> {
+            while (!terminateFlag) {
+                try {
+                    Message msg = messagesToSend.take();
+                    client.send(msg);
+                } catch (Exception e) {
+                    Log.i(TAG, "Message sending failure", e);
+                }
+            }
+        };
     }
 
     /**
@@ -176,6 +195,8 @@ public class ClientHandler {
                 } catch (IOException e) {
                     Log.i(TAG, "message receiving failure", e);
                     handleIOE(e);
+                } catch (Exception e) {
+                    Log.i(TAG, "message receiving failure", e);
                 }
             }
         };
