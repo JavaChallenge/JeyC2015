@@ -107,10 +107,14 @@ public class Context {
                 int type = block.values[0].intValue();
                 int height = block.values[1].intValue();
                 int resource = block.values[2].intValue();
+                int jumpImp = block.values[3].intValue();
+                int gainImp = block.values[4].intValue();
+                int attackImp = block.values[5].intValue();
+                int dofImp = block.values[6].intValue();
                 boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
                 if (type != 3)
                     resource = 0;
-                Block b = new Block(this, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
+                Block b = new Block(this, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable, gainImp, dofImp, jumpImp, attackImp);
                 map.set(j, i, b);
             }
         }
@@ -122,11 +126,11 @@ public class Context {
                 int x = instance.x, y = instance.y;
                 int teamID = instance.values[0].intValue();
                 int dof = instance.values[1].intValue();
-                int energy = instance.values[2].intValue();
-                int gainRate = instance.values[3].intValue();
-                dof = Constants.CELL_DEPTH_OF_FIELD;
-                gainRate = Constants.CELL_GAIN_RATE;
-                Cell cell = new Cell(this, new Position(x, y), teamID, dof, energy, gainRate);
+                int jump = instance.values[2].intValue();
+                int energy = instance.values[3].intValue();
+                int gainRate = instance.values[4].intValue();
+                int attack = instance.values[5].intValue();
+                Cell cell = new Cell(this, new Position(x, y), teamID, dof, energy, gainRate, jump, attack);
                 addCell(cell);
             }
         }

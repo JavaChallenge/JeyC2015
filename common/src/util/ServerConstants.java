@@ -23,12 +23,21 @@ public class ServerConstants {
     public static final String BLOCK_KEY_DEPTH_OF_FIELD_IMP = "dof";
     public static final String BLOCK_KEY_GAIN_RATE_IMP = "gain_rate";
 
+    public static final int BLOCK_MAX_HEIGHT = 9;
+    public static final int BLOCK_HEIGHT_COEFFICIENT = 50;
+
     public static final String CELL_KEY_JUMP = "jump";
     public static final String CELL_KEY_ENERGY = "energy";
     public static final String CELL_KEY_ATTACK = "attack";
     public static final String CELL_KEY_VISIBLE = "visible";
     public static final String CELL_KEY_DEPTH_OF_FIELD = "dof";
     public static final String CELL_KEY_GAIN_RATE = "gain_rate";
+
+    public static final int CELL_MAX_DEPTH_OF_FIELD = 10;
+    public static final int CELL_MAX_GAIN_RATE = 50;
+    public static final int CELL_MAX_ATTACK = 35;
+    public static final int CELL_MAX_JUMP = 7;
+
 
     public static final String GAME_OBJECT_TYPE_CELL = "cell";
     public static final String GAME_OBJECT_TYPE_DESTROYED = "destroyed";

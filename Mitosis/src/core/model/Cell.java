@@ -23,16 +23,17 @@ public class Cell extends DynamicGameObject {
     //private String id;
     //private Position pos;
     //final private int teamId;
-    private int jump;
     private int energy;
-    private int attack;
-    private int gainRate;
-    private int depthOfField;
     //private DynamicGameObject myDynamicGameObject;
     private CellData mDynamicData;
     private ObjectDiff[] diffsForAllViews;
 
-    public Cell (Context ctx, Position pos, int teamId, int dof, int energy, int gainRate) {
+    private int depthOfField;
+    private int jump;
+    private int gainRate;
+    private int attack;
+
+    public Cell (Context ctx, Position pos, int teamId, int dof, int energy, int gainRate, int jump, int attack) {
         super(teamId);
         this.ctx = ctx;
         id = UID.getUID();
@@ -41,6 +42,8 @@ public class Cell extends DynamicGameObject {
         depthOfField = dof;
         this.energy = energy;
         this.gainRate = gainRate;
+        this.jump = jump;
+        this.attack = attack;
 
         mDynamicData = new CellData(id, this.position, type, this.teamId, this.energy);
 
@@ -122,6 +125,7 @@ public class Cell extends DynamicGameObject {
 
     public boolean mitosis() {
         //System.out.println("mitosis start");
+        Block mitosisBlock;
         if(energy < ServerConstants.CELL_MIN_ENERGY_FOR_MITOSIS)
         {
             return false;
@@ -135,13 +139,15 @@ public class Cell extends DynamicGameObject {
             {
                 continue;
             }
+            mitosisBlock = ctx.getMap().at(position);
             if(ctx.getMap().at(tPos).getType().equals(Constants.BLOCK_TYPE_IMPASSABLE))
             {
                 continue;
             }
-            int currentHeight = ctx.getMap().at(position).getHeight();
+            int currentHeight = mitosisBlock.getHeight();
             int nextHeight = ctx.getMap().at(tPos).getHeight();
-            if (nextHeight > currentHeight + 2) {
+            int newJump = jump + mitosisBlock.getJumpImprovementAmount();
+            if (nextHeight > currentHeight + newJump) {
                 continue;
             }
             if(ctx.getMap().at(tPos).isEmpty())
@@ -153,7 +159,7 @@ public class Cell extends DynamicGameObject {
         if(secondCellPos == null) {
             return false;
         }
-
+        mitosisBlock = ctx.getMap().at(position);
         int energy = ServerConstants.CELL_MIN_ENERGY_FOR_MITOSIS;
         int secondEnergy = energy / 2;
         setEnergy(energy - secondEnergy);
@@ -162,9 +168,11 @@ public class Cell extends DynamicGameObject {
                         ctx,
                         secondCellPos,
                         teamId,
-                        depthOfField,
+                        Math.min( depthOfField + mitosisBlock.getDepthOfFieldImprovementAmount(),ServerConstants.CELL_MAX_DEPTH_OF_FIELD),
                         secondEnergy,
-                        gainRate
+                        Math.min(gainRate + mitosisBlock.getGainImprovementAmount(),ServerConstants.CELL_MAX_GAIN_RATE),
+                        Math.min(jump + mitosisBlock.getJumpImprovementAmount(), ServerConstants.CELL_MAX_JUMP),
+                        Math.min(attack + mitosisBlock.getAttackImprovementAmount(), ServerConstants.CELL_MAX_ATTACK)
                 );
         ctx.addCell(newCell);
         //System.out.println("mitosis end");
@@ -177,7 +185,7 @@ public class Cell extends DynamicGameObject {
         }
         int nextHeight = ctx.getMap().at(nextPos).getHeight();
         int currentHeight = ctx.getMap().at(position).getHeight();
-        if(nextHeight > currentHeight +2)
+        if(nextHeight > currentHeight +jump)
         {
             return false;
         }
@@ -223,7 +231,7 @@ public class Cell extends DynamicGameObject {
     }
 
     public boolean attack(Cell cell) {
-        int attack = 20;//TODO
+        //int attack = 20;//TODO
         cell.setEnergy(cell.getEnergy()-attack);
         if(cell.getEnergy() < 0)
         {

@@ -12,7 +12,7 @@ import util.ServerConstants;
 public class Block {
 
     private Position pos;
-    private int height;
+    //private int height;
     private int minHeight;
     private int resource;
     private String type;
@@ -116,7 +116,7 @@ public class Block {
     }
 
     public int getHeight() {
-        return height;
+        return Math.min(minHeight + resource/ServerConstants.BLOCK_HEIGHT_COEFFICIENT, ServerConstants.BLOCK_MAX_HEIGHT);
     }
 
     public int getMinHeight() {

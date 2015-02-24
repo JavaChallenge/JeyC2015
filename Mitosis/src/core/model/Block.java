@@ -25,20 +25,25 @@ public class Block {
     private BlockData mStaticData;
     private ObjectDiff[] diffsForAllViews;
 
+    private int mGainImprovementAmount;
+    private int mDepthOfFieldImprovementAmount;
+    private int mJumpImprovementAmount;
+    private int mAttackImprovementAmount;
+
 
     public Block(Context ctx, int turn, int x, int y) {
-        this(ctx, turn, x, y, 0, 0, ServerConstants.BLOCK_TYPE_NONE, true);
+        this(ctx, turn, x, y, 0, 0, ServerConstants.BLOCK_TYPE_NONE, true, 0, 0, 0, 0);
     }
 
     public Block(Context ctx, int turn, int x, int y, int height, int resource) {
-        this(ctx, turn, x, y, height, resource, ServerConstants.BLOCK_TYPE_NONE, true);
+        this(ctx, turn, x, y, height, resource, ServerConstants.BLOCK_TYPE_NONE, true, 0, 0, 0, 0);
     }
 
     public Block(Context ctx, int turn, int x, int y, int height, int resource, String type) {
-        this(ctx, turn, x, y, height, resource, type, true);
+        this(ctx, turn, x, y, height, resource, type, true, 0, 0, 0, 0);
     }
 
-    public Block(Context ctx, int turn, int x, int y, int height, int resource, String type, boolean isMovable) {
+    public Block(Context ctx, int turn, int x, int y, int height, int resource, String type, boolean isMovable, int gainImprovementAmount, int depthOfFieldImprovementAmount, int jumpImprovementAmount, int attackImprovementAmount) {
         this.ctx = ctx;
         mId = UID.getUID();
         mTurn = turn;
@@ -49,6 +54,10 @@ public class Block {
         mResource = resource;
         mType = type;
         this.isMovable = isMovable;
+        mGainImprovementAmount = gainImprovementAmount;
+        mDepthOfFieldImprovementAmount = depthOfFieldImprovementAmount;
+        mJumpImprovementAmount = jumpImprovementAmount;
+        mAttackImprovementAmount = attackImprovementAmount;
 
         mStaticData = new BlockData(mId,turn,mPos, type, height, resource);
 
@@ -64,7 +73,7 @@ public class Block {
             if(mType.equals(ServerConstants.BLOCK_TYPE_RESOURCE)) {
                 diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_RESOURCE, mResource);
             }
-            if(mType.equals(ServerConstants.BLOCK_TYPE_RESOURCE))
+            if(mType.equals(ServerConstants.BLOCK_TYPE_MITOSIS))
             {
                 //TODO
             }
@@ -102,7 +111,7 @@ public class Block {
     }
 
     public int getHeight() {
-        return mHeight;
+        return Math.min( mHeight + mResource/ServerConstants.BLOCK_HEIGHT_COEFFICIENT ,ServerConstants.BLOCK_MAX_HEIGHT);
     }
 
     public String getId() {
@@ -151,5 +160,21 @@ public class Block {
 
     public ObjectDiff getGlobalViewDiffs() {
         return diffsForAllViews[ctx.getGlobalViewIndex()];
+    }
+
+    public int getAttackImprovementAmount() {
+        return mAttackImprovementAmount;
+    }
+
+    public int getJumpImprovementAmount() {
+        return mJumpImprovementAmount;
+    }
+
+    public int getDepthOfFieldImprovementAmount() {
+        return mDepthOfFieldImprovementAmount;
+    }
+
+    public int getGainImprovementAmount() {
+        return mGainImprovementAmount;
     }
 }

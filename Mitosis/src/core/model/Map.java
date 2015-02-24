@@ -52,56 +52,6 @@ public class Map {
         public TypeStructure[] objects;
     }
 
-    public static Map load(Context ctx, String dir) throws IOException, IOException {
-
-
-        String[] types = {
-                ServerConstants.BLOCK_TYPE_NONE,
-                ServerConstants.BLOCK_TYPE_NORMAL,
-                ServerConstants.BLOCK_TYPE_MITOSIS,
-                ServerConstants.BLOCK_TYPE_RESOURCE,
-                ServerConstants.BLOCK_TYPE_IMPASSABLE
-        };
-
-        File file = new File(dir);
-        String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
-//        System.out.println(json);
-        FileStructure fs = new Gson().fromJson(json, FileStructure.class);
-
-        // create map
-        int w = fs.map.width, h = fs.map.height;
-        Map map = new Map(ctx, w, h);
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                BlockStructure block = fs.map.blocks[j][i];
-                int type = block.values[0].intValue();
-                int height = block.values[1].intValue();
-                int resource = block.values[2].intValue();
-                boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
-                Block b = new Block(ctx, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
-                map.set(j, i, b);
-            }
-        }
-
-        // create objects
-        for (TypeStructure type : fs.objects) {
-            ObjectStructure[] instances = type.instances;
-            for (ObjectStructure instance : instances) {
-                int x = instance.x, y = instance.y;
-                int teamID = instance.values[0].intValue();
-                int dof = instance.values[1].intValue();
-                int energy = instance.values[2].intValue();
-                int gainRate = instance.values[3].intValue();
-//                dof = Constants.CELL_DEPTH_OF_FIELD;
-//                gainRate = Constants.CELL_GAIN_RATE;
-                Cell cell = new Cell(ctx, new Position(x, y), teamID, dof, energy, gainRate);
-                ctx.addCell(cell);
-            }
-        }
-
-        return map;
-    }
-
     /*public void load(String dir)
     {
         //TODO LOADING
