@@ -1,6 +1,7 @@
 package core.data;
 
 import model.Position;
+import util.ServerConstants;
 
 import java.util.HashMap;
 
@@ -22,6 +23,14 @@ public class DynamicData {
     {
         this.id = id;
         this. position = position;
+        switch (type)
+        {
+            case ServerConstants.GAME_OBJECT_TYPE_CELL:
+                type = ServerConstants.GAME_OBJECT_TYPE_CELL_LONG;
+                break;
+            default:
+                break;
+        }
         this.type = type;
     }
     public DynamicData (String id, Position position, String type, HashMap<String,Object> other)

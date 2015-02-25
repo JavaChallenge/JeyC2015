@@ -83,14 +83,14 @@ public class MitosisGameLogic implements GameLogic {
             for (int col = 0; col < width; col++) {
                 HashMap<String, Object> blockMap = new HashMap<>();
                 Block block = map.at(col, row);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_ID, block.getId());
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TYPE, ServerConstants.BLOCK_TYPE_NONE);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TURN, ServerConstants.TURN_WORLD_CREATION);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_POSITION, new Position(block.getX(), block.getY()));
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_ID_LONG, block.getId());
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TYPE_LONG, ServerConstants.BLOCK_TYPE_NONE_LONG);
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TURN_LONG, ServerConstants.TURN_WORLD_CREATION);
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_POSITION_LONG, new Position(block.getX(), block.getY()));
                 HashMap<String,Object> otherDict = new HashMap<>();
-                otherDict.put(ServerConstants.BLOCK_KEY_HEIGHT, 0);
-                otherDict.put(ServerConstants.BLOCK_KEY_RESOURCE, 0);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_OTHER, otherDict);
+                otherDict.put(ServerConstants.BLOCK_KEY_HEIGHT_LONG, 0);
+                otherDict.put(ServerConstants.BLOCK_KEY_RESOURCE_LONG, 0);
+                blockMap.put(ServerConstants.GAME_OBJECT_KEY_OTHER_LONG, otherDict);
                 uiUnknownMap.add(blockMap);
             }
         }
@@ -125,6 +125,7 @@ public class MitosisGameLogic implements GameLogic {
             info.put(ServerConstants.INFO_KEY_TEAMS, teamsList);
             info.put(ServerConstants.INFO_KEY_YOUR_INFO, teamInfo);
             info.put(ServerConstants.INFO_KEY_MAP_SIZE, mapSize);
+            info.put(ServerConstants.INFO_KEY_HEIGHT_COEFFICIENT, ServerConstants.BLOCK_HEIGHT_COEFFICIENT);
 
 
             //make static diff
@@ -146,6 +147,7 @@ public class MitosisGameLogic implements GameLogic {
         info.put(ServerConstants.INFO_KEY_TEAMS, teamsList);
         info.put(ServerConstants.INFO_KEY_VIEWS, ctx.getViewsList());
         info.put(ServerConstants.INFO_KEY_MAP_SIZE, mapSize);
+        info.put(ServerConstants.INFO_KEY_HEIGHT_COEFFICIENT, ServerConstants.BLOCK_HEIGHT_COEFFICIENT);
 
         //make map
             // map is ready
@@ -316,7 +318,7 @@ public class MitosisGameLogic implements GameLogic {
             Position nextPos = cell.getPos().getNextPos(dir);
             Block block = map.at(nextPos);
             if(block.isEmpty()) continue;
-            if(block.getCell().isTMM(cell)) continue;
+            //if(block.getCell().isTMM(cell)) continue;
             cell.attack(block.getCell());
         }
         for(java.util.Map.Entry entry : ctx.getDeadCells().entrySet())

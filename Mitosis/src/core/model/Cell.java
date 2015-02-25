@@ -215,12 +215,13 @@ public class Cell extends DynamicGameObject {
         if( blockResource < gainRate) {
             gain = blockResource;
         }
-        else if(gainRate + energy > ServerConstants.CELL_MAX_ENERGY)
-        {
-            gain = ServerConstants.CELL_MAX_ENERGY - energy;
-        }
         else{
             gain = gainRate;
+        }
+
+        if(gain + energy > ServerConstants.CELL_MAX_ENERGY)
+        {
+            gain = ServerConstants.CELL_MAX_ENERGY - energy;
         }
         block.setResource(blockResource - gain);
         setEnergy(energy + gain);

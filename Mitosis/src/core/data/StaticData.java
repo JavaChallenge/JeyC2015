@@ -1,6 +1,7 @@
 package core.data;
 
 import model.Position;
+import util.ServerConstants;
 
 import java.util.HashMap;
 
@@ -24,6 +25,26 @@ public class StaticData {
         this.id = id;
         this.turn = turn;
         this. position = position;
+        switch (type)
+        {
+            case ServerConstants.BLOCK_TYPE_NONE:
+                type = ServerConstants.BLOCK_TYPE_NONE_LONG;
+                break;
+            case ServerConstants.BLOCK_TYPE_IMPASSABLE:
+                type =ServerConstants.BLOCK_TYPE_IMPASSABLE_LONG;
+                break;
+            case ServerConstants.BLOCK_TYPE_MITOSIS:
+                type =ServerConstants.BLOCK_TYPE_MITOSIS_LONG;
+                break;
+            case ServerConstants.BLOCK_TYPE_NORMAL:
+                type = ServerConstants.BLOCK_TYPE_NORMAL_LONG;
+                break;
+            case ServerConstants.BLOCK_TYPE_RESOURCE:
+                type = ServerConstants.BLOCK_TYPE_RESOURCE_LONG;
+                break;
+            default:
+                break;
+        }
         this.type = type;
     }
     StaticData (String id, int turn, Position position, String type, HashMap<String,Object> other)

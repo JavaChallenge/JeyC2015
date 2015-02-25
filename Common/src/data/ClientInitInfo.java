@@ -1,5 +1,7 @@
 package data;
 
+import util.ServerConstants;
+
 /**
  * Created by Razi on 2/11/2015.
  */
@@ -8,6 +10,7 @@ public class ClientInitInfo {
     String[] teams;
     TeamInfo yourInfo;
     MapSize mapSize;
+    int blockCoefficient = ServerConstants.BLOCK_HEIGHT_COEFFICIENT;
 
     public void setTurn(int turn) {
         this.turn = turn;
