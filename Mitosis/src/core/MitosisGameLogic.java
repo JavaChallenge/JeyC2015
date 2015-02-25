@@ -232,22 +232,22 @@ public class MitosisGameLogic implements GameLogic {
 
 
         if (clientsEvent != null || environmentEvent != null || terminalEvent != null) {
-            if (clientsEvent != null)
-            {
+            if (clientsEvent != null) {
                 for (int i = 0; i < mTeams.length; i++) {
-                    if (clientsEvent[i] == null) continue;
-                    for(int j = 0; j < clientsEvent[i].length; j++)
-                    {
-                        GameEvent event = new GameEvent(clientsEvent[i][j]);
-                        //event.getGameObjectId() TODO CHECK OWNER
-                        String id = event.getGameObjectId();
-                        if(ctx.getDynamicObject(id) == null || ctx.getDynamicObject(id).getTeamId() != i)
-                        {
-                            continue;
+                    if (clientsEvent[i] == null)
+                        continue;
+                    for(int j = 0; j < clientsEvent[i].length; j++) {
+                        try {
+                            GameEvent event = new GameEvent(clientsEvent[i][j]);
+                            //event.getGameObjectId() TODO CHECK OWNER
+                            String id = event.getGameObjectId();
+                            if (ctx.getDynamicObject(id) == null || ctx.getDynamicObject(id).getTeamId() != i) {
+                                continue;
+                            }
+                            event.setTeamId(i);
+                            gameObjectEvents.put(event.getGameObjectId(), event);
+                        } catch (Exception ignored) {
                         }
-                        event.setTeamId(i);
-                        gameObjectEvents.put(event.getGameObjectId(), event);
-
                     }
                     //GameEvent[] teamEvent = (GameEvent[]) clientsEvent[i];
                     /*for (GameEvent event: teamEvent) {
@@ -257,72 +257,76 @@ public class MitosisGameLogic implements GameLogic {
                     }*/
                 }
             }
-            if (environmentEvent != null)
-            {
-                for (GameEvent event: (GameEvent[])environmentEvent) {
+            if (environmentEvent != null) {
+                for (GameEvent event : (GameEvent[])environmentEvent) {
                     event.setTeamId(-1);
                     gameObjectEvents.put(event.getGameObjectId(), event);
                 }
-
             }
-            if (terminalEvent != null)
-            {
+            if (terminalEvent != null) {
                 //TODO
                 /*for (GameEvent event: (GameEvent[])terminalEvent) {
                     event.setTeamId(-2);
                         gameObjectEvents.put(event.getGameObjectId(), event);
                 }*/
-
             }
 
             Collection<GameEvent> currentTurnEventsList = gameObjectEvents.values();
-            for (GameEvent event: currentTurnEventsList) {
-                switch (event.getType()) {
-                    case GameEvent.TYPE_MOVE:
-                        moveEvents.add(event);
-                        break;
+            for (GameEvent event : currentTurnEventsList) {
+                try {
+                    switch (event.getType()) {
+                        case GameEvent.TYPE_MOVE:
+                            moveEvents.add(event);
+                            break;
 
-                    case GameEvent.TYPE_GAIN_RESOURCE:
-                        gainResourceEvents.add(event);
-                        break;
+                        case GameEvent.TYPE_GAIN_RESOURCE:
+                            gainResourceEvents.add(event);
+                            break;
 
-                    case GameEvent.TYPE_MITOSIS:
-                        mitosisEvents.add(event);
-                        break;
-                    case GameEvent.TYPE_ATTACK:
-                        attackEvents.add(event);
+                        case GameEvent.TYPE_MITOSIS:
+                            mitosisEvents.add(event);
+                            break;
+                        case GameEvent.TYPE_ATTACK:
+                            attackEvents.add(event);
+                    }
+                } catch (Exception ignored) {
                 }
             }
         }
 
         Collections.shuffle(mitosisEvents);
-        for (GameEvent event: mitosisEvents) {
-            Cell cell = ctx.getCell(event.getGameObjectId());
-            if (cell == null) continue;
-
-            Block block = map.at(cell.getPos());
-            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_MITOSIS))
-            {
-                continue;
+        for (GameEvent event : mitosisEvents) {
+            try {
+                Cell cell = ctx.getCell(event.getGameObjectId());
+                if (cell == null)
+                    continue;
+                Block block = map.at(cell.getPos());
+                if (!block.getType().equals(ServerConstants.BLOCK_TYPE_MITOSIS)) {
+                    continue;
+                }
+                cell.mitosis();
+            } catch (Exception ignored) {
             }
-            cell.mitosis();
         }
 
 
         ctx.clearDeadCells();
-        for(GameEvent event: attackEvents)
-        {
-            Cell cell = ctx.getCell(event.getGameObjectId());
-            if(cell == null) continue;
-            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_ATTACK_DIRECTION]);
-            Position nextPos = cell.getPos().getNextPos(dir);
-            Block block = map.at(nextPos);
-            if(block.isEmpty()) continue;
-            //if(block.getCell().isTMM(cell)) continue;
-            cell.attack(block.getCell());
+        for (GameEvent event: attackEvents) {
+            try {
+                Cell cell = ctx.getCell(event.getGameObjectId());
+                if (cell == null)
+                    continue;
+                Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_ATTACK_DIRECTION]);
+                Position nextPos = cell.getPos().getNextPos(dir);
+                Block block = map.at(nextPos);
+                if (block.isEmpty())
+                    continue;
+                //if(block.getCell().isTMM(cell)) continue;
+                cell.attack(block.getCell());
+            } catch (Exception ignored) {
+            }
         }
-        for(java.util.Map.Entry entry : ctx.getDeadCells().entrySet())
-        {
+        for (java.util.Map.Entry entry : ctx.getDeadCells().entrySet()) {
             Cell cell = (Cell)entry.getValue();
             ctx.killCell(cell);
         }
@@ -334,27 +338,30 @@ public class MitosisGameLogic implements GameLogic {
 //        HashMap<Cell, GameEvent> validMoveEvents = new HashMap<>();
 
         for (GameEvent event : moveEvents) {
-            Cell cell = ctx.getCell(event.getGameObjectId());
-            if (cell == null)
-                continue;
-            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
-            Position pos = cell.getPos();
-            Position nextPos = pos.getNextPos(dir);
-            if (!ctx.checkBounds(nextPos) || !ctx.checkBounds(pos))
-                continue;
-            Block nextBlock = map.at(nextPos);
-            int nextHeight = nextBlock.getHeight();
-            int currentHeight = nextBlock.getHeight();
-            if (nextHeight > currentHeight + cell.getJump()) {
-                continue;
-            }
-            if (!nextBlock.isMovable())
-                continue; // if this block is not movable
-            //System.out.println(cell.getId());
-            //if (nextBlock.isEmpty())
-            validMoveEvents.add(event);
+            try {
+                Cell cell = ctx.getCell(event.getGameObjectId());
+                if (cell == null)
+                    continue;
+                Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
+                Position pos = cell.getPos();
+                Position nextPos = pos.getNextPos(dir);
+                if (!ctx.checkBounds(nextPos) || !ctx.checkBounds(pos))
+                    continue;
+                Block nextBlock = map.at(nextPos);
+                int nextHeight = nextBlock.getHeight();
+                int currentHeight = nextBlock.getHeight();
+                if (nextHeight > currentHeight + cell.getJump()) {
+                    continue;
+                }
+                if (!nextBlock.isMovable())
+                    continue; // if this block is not movable
+                //System.out.println(cell.getId());
+                //if (nextBlock.isEmpty())
+                validMoveEvents.add(event);
 //            validEvents.add(new EventValidationCell())
-            //cell.move(nextPos);
+                //cell.move(nextPos);
+            } catch (Exception ignored) {
+            }
         }
 
         int n = validMoveEvents.size();
@@ -403,26 +410,26 @@ public class MitosisGameLogic implements GameLogic {
 
         // handling gain resource events
         for (GameEvent event: gainResourceEvents) {
-            //System.out.println("@gainResourceEvents for");
-            Cell cell = ctx.getCell(event.getGameObjectId());
-            if (cell == null) continue;
-
-            Block block = map.at(cell.getPos());
-            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_RESOURCE))
-            {
-                continue;
-            }
-            //System.out.println(block.getResource());
-            if(block.getResource() > 0)
-            {
-                cell.gainResource();
+            try {
+                //System.out.println("@gainResourceEvents for");
+                Cell cell = ctx.getCell(event.getGameObjectId());
+                if (cell == null)
+                    continue;
+                Block block = map.at(cell.getPos());
+                if (!block.getType().equals(ServerConstants.BLOCK_TYPE_RESOURCE)) {
+                    continue;
+                }
+                //System.out.println(block.getResource());
+                if (block.getResource() > 0) {
+                    cell.gainResource();
+                }
+            } catch (Exception ignored) {
             }
         }
 
-        for(Team team : mTeams)
-        {
+        for(Team team : mTeams) {
             int score = 0;
-            for (Cell cell: team.getCells()) {
+            for (Cell cell : team.getCells()) {
                 score += cell.getEnergy();
             }
             team.setScore(score);

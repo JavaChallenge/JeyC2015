@@ -20,14 +20,13 @@ public class GameEvent extends Event {
     private int teamId; // tell which team this event is for
     //private String[] args; // arguments of the event
 
-    public GameEvent(Event event)
-    {
+    public GameEvent(Event event) {
         type = event.getType();
         objectId = event.getObjectId();
         args = event.getArgs();
     }
 
-    public GameEvent(String type){
+    public GameEvent(String type) {
         this.type = type;
         int argsLen = 0;
         switch (type){

@@ -261,8 +261,7 @@ public class Cell extends DynamicGameObject {
     }
 
     public void die() {
-        for(ObjectDiff d:diffsForAllViews)
-        {
+        for(ObjectDiff d:diffsForAllViews) {
             d.clearChanges();
             d.put(ServerConstants.BLOCK_KEY_TYPE, ServerConstants.GAME_OBJECT_TYPE_DESTROYED);
         }
