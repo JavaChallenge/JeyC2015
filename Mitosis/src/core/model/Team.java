@@ -91,9 +91,7 @@ public class Team {
     }
 
     public boolean isOpp(Cell cell) {
-        if(cell.teamId == mInfo.getID())
-            return false;
-        return true;
+        return cell.getTeamId() != mInfo.getID();
     }
 
     public Cell findInLastVisibleCells(String id) {

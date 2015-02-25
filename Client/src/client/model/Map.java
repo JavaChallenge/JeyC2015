@@ -4,7 +4,6 @@ import client.Model;
 import com.google.gson.JsonElement;
 import data.ReceivedObjectDiff;
 import model.Position;
-import data.BlockData;
 import data.MapSize;
 import util.ServerConstants;
 

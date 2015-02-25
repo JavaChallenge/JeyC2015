@@ -178,14 +178,14 @@ public class Block {
     public boolean equals(Object o) {
         if (o instanceof Block) {
             Block b = (Block) o;
-            return pos.equals(b.pos);
+            return id.equals(b.id);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return pos.hashCode();
+        return id.hashCode();
     }
 
 }

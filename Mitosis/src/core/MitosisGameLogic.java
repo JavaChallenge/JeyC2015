@@ -1,6 +1,5 @@
 package core;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import core.data.*;
 import core.model.*;
@@ -563,9 +562,6 @@ public class MitosisGameLogic implements GameLogic {
 
     public Message getStatusMessage() {
         Object[] args = new Object[] {new Object()};
-
-
-
         Message status = new Message(Message.NAME_STATUS, args);
         return status;
     }

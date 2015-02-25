@@ -45,7 +45,7 @@ public class Cell extends DynamicGameObject {
         this.jump = jump;
         this.attack = attack;
 
-        mDynamicData = new CellData(id, this.position, type, this.teamId, this.energy);
+        mDynamicData = new CellData(id, this.position, type, getTeamId(), this.energy);
 
         diffsForAllViews = new ObjectDiff[ctx.getViewsList().length];
         for(int i = 0; i < ctx.getViewsList().length; i++)
@@ -54,9 +54,9 @@ public class Cell extends DynamicGameObject {
 
             diffsForAllViews[i].put(ServerConstants.BLOCK_KEY_TYPE, type);
             diffsForAllViews[i].put(ServerConstants.CELL_KEY_ENERGY, this.energy);
-            diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_TEAM_ID, this.teamId);
+            diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_TEAM_ID, getTeamId());
             diffsForAllViews[i].put(ServerConstants.GAME_OBJECT_KEY_POSITION, this.position);
-            if(i == this.teamId || i == ctx.getGlobalViewIndex())
+            if(i == getTeamId() || i == ctx.getGlobalViewIndex())
             {
                 diffsForAllViews[i].put(ServerConstants.CELL_KEY_JUMP, this.jump);
                 diffsForAllViews[i].put(ServerConstants.CELL_KEY_ATTACK, this.attack);
@@ -165,7 +165,7 @@ public class Cell extends DynamicGameObject {
                 (
                         ctx,
                         secondCellPos,
-                        teamId,
+                        getTeamId(),
                         Math.min( depthOfField + mitosisBlock.getDepthOfFieldImprovementAmount(),ServerConstants.CELL_MAX_DEPTH_OF_FIELD),
                         secondEnergy,
                         Math.min(gainRate + mitosisBlock.getGainImprovementAmount(),ServerConstants.CELL_MAX_GAIN_RATE),
@@ -252,11 +252,7 @@ public class Cell extends DynamicGameObject {
     }
 
     public boolean isTMM(Cell cell) {
-        if(cell.getTeamId() == teamId)
-        {
-            return true;
-        }
-        return false;
+        return cell.getTeamId() == getTeamId();
     }
 
     public void die() {

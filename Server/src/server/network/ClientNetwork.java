@@ -111,10 +111,12 @@ public class ClientNetwork extends NetServer {
      */
     private ClientHandler newClient() {
         ClientHandler client = new ClientHandler();
-        Runnable receiver = client.getReceiver(() -> receiveTimeFlag);
-        receiveExecutor.submit(receiver);
         sendExecutor.submit(client.getSender());
         return client;
+    }
+
+    private boolean timeValidator() {
+        return receiveTimeFlag;
     }
 
     /**
@@ -262,7 +264,10 @@ public class ClientNetwork extends NetServer {
             String clientToken = (String) token.args[0];
             int clientID = mTokens.getOrDefault(clientToken, -1);
             if (clientID != -1) {
-                mClients.get(clientID).bind(client);
+                ClientHandler clientHandler = mClients.get(clientID);
+                clientHandler.bind(client);
+                Runnable receiver = clientHandler.getReceiver(() -> receiveTimeFlag);
+                receiveExecutor.submit(receiver);
                 return true;
             }
         }
@@ -378,6 +383,13 @@ public class ClientNetwork extends NetServer {
     public void terminate() {
         super.terminate();
         acceptExecutor.shutdownNow();
+    }
+
+    public void shutdownAll() {
+        Message shutdown = new Message(Message.NAME_SHUTDOWN, new Object[] {});
+        mClients.forEach(c -> c.queue(shutdown));
+        sendAllBlocking();
+        mClients.forEach(ClientHandler::terminate);
     }
 
 }

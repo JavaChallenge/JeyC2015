@@ -1,12 +1,11 @@
 package server.core;
 
-import server.exceptions.OutputControllerQueueOverflowException;
 import server.network.UINetwork;
 import network.data.Message;
+import util.Log;
 
 import java.io.*;
 import java.util.LinkedList;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.*;
 
@@ -20,17 +19,16 @@ import java.util.concurrent.*;
  */
 public class OutputController implements Runnable {
 
-    private static final int QUEUE_DEFAULT_SIZE = 100000;
+    public static final String TAG = "OutputController";
+
+    private boolean sendToFile = false;
+    private FileWriter fileWriter;
+    private File outputFile;
 
     private boolean sendToUI = false;
+    private UINetworkSender uiSender;
     private UINetwork uiNetwork;
-    private int timeInterval;
-    private Timer timer;
-    private boolean sendToFile = false;
-    private File outputFile;
-    private int bufferSize;
-    private FileWriter fileWriter;
-    private LinkedList<Message> messagesQueue;
+
 
     /**
      * Constructor with the properties about how outputs must be handled.
@@ -57,47 +55,23 @@ public class OutputController implements Runnable {
      * @param sendToUI Indicates that data will be sent to given {@link server.network.UINetwork UINetwork} instance
      *                 or not
      * @param uiNetwork The given instance of {@link server.network.UINetwork UINetwork} class to send data to
-     * @param timeInterval The indicated timer tick which triggers
-     *                  {@link server.core.OutputController.UINetworkSender#sendToUINetwork(network.data.Message)
-     *                  sendToUINetwork(Message)} method
      * @param sendToFile Indicates that a log of output will be saved in the given {@link java.io.File java.io.File} or
      *                   not
      * @param outputFile The given {@link java.io.File java.io.File} to save data within
-     * @param bufferSize The preferred number of message elements to be held on memory before writing to file
      */
-    public OutputController(boolean sendToUI, UINetwork uiNetwork, int timeInterval
-                            , boolean sendToFile, File outputFile, int bufferSize) {
-        messagesQueue = new LinkedList<>();
+    public OutputController(boolean sendToUI, UINetwork uiNetwork,
+                            boolean sendToFile, File outputFile) {
         this.sendToUI = sendToUI;
         if (sendToUI) {
-            if (uiNetwork != null) {
-                this.uiNetwork = uiNetwork;
-            } else {
-                throw new RuntimeException("The given parameter as uiNetwork is null");
-            }
-
-            if (timeInterval > 0) {
-                this.timeInterval = timeInterval;
-            } else {
-                throw new RuntimeException("The given parameter as timeInterval is invalid");
+            this.uiNetwork = uiNetwork;
+            if (uiNetwork == null) {
+                this.sendToUI = false;
+                Log.i(TAG, "UINetwork parameter is null.");
             }
         }
         this.sendToFile = sendToFile;
         if (sendToFile) {
             this.outputFile = outputFile;
-            try {
-                this.outputFile.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException("Could not create log file");
-            }
-
-            if (bufferSize > 0 && bufferSize <= QUEUE_DEFAULT_SIZE) {
-                this.bufferSize = bufferSize;
-            } else if (bufferSize > 0) {
-                throw new RuntimeException("The given parameter as bufferSize is greater than max queue size");
-            } else {
-                throw new RuntimeException("The given parameter as bufferSize is not valid");
-            }
         }
     }
 
@@ -114,14 +88,20 @@ public class OutputController implements Runnable {
     @Override
     public void run() {
         if (sendToUI) {
-            timer = new Timer();
-            timer.scheduleAtFixedRate(new UINetworkSender(), 0, timeInterval);
+            uiSender = new UINetworkSender();
+            new Thread(uiSender).start();
+//            timer = new Timer();
+//            timer.scheduleAtFixedRate(new UINetworkSender(), 0, timeInterval);
         }
-
         if (sendToFile) {
-            fileWriter = new FileWriter(outputFile);
+            try {
+                fileWriter = new FileWriter(outputFile);
+                new Thread(fileWriter).start();
+            } catch (IOException e) {
+                Log.i(TAG, "File writer could not be created.");
+                sendToFile = false;
+            }
         }
-        new Thread(fileWriter).start();
     }
 
     /**
@@ -130,42 +110,32 @@ public class OutputController implements Runnable {
      * <p>
      *     In this method, the given message will be putted in the message queue, only if there's a place on the
      *     queue. Otherwise the cleaning and caching processes will be done (through the
-     *     {@link #hanldeOverflow() hanldeOverflow} method).
+     *     handleOverflow method).
      *     Also if the buffer size condition is met, then the file writer method will be called with an
      *     alternative thread, to save the contents on the file.
      * </p>
      * @param message The given message (as output) to put in the message queue.
      */
     public synchronized void putMessage(Message message) {
-        if (messagesQueue.size() <= QUEUE_DEFAULT_SIZE) {
-            messagesQueue.addLast(message);
-            if (messagesQueue.size() == bufferSize && sendToFile) {
-                fileWriter.putMessages(messagesQueue);
-                messagesQueue = new LinkedList<>();
-            }
-        } else {
-            if (hanldeOverflow()) {
-                messagesQueue.addLast(message);
-            } else {
-                throw new OutputControllerQueueOverflowException("Could not handle message queue overflow");
-            }
+        if (uiSender != null) {
+            uiSender.queue(message);
         }
-        synchronized (messagesQueue) {
-            messagesQueue.notifyAll();
+        if (fileWriter != null) {
+            fileWriter.queue(message);
         }
     }
-
-    /**
-     * Method created to handle the possible overflows occurance in the message queue.
-     * <p>
-     *      TODO: INCOMPLETE - Must be implemented to cache the queue to file.
-     * </p>
-     * @return True if the queue unblocked, false if any error occur during this operation
-     */
-    private boolean hanldeOverflow() {
-        messagesQueue.clear();
-        return true;
-    }
+//
+//    /**
+//     * Method created to handle the possible overflows occurance in the message queue.
+//     * <p>
+//     *      INCOMPLETE - Must be implemented to cache the queue to file.
+//     * </p>
+//     * @return True if the queue unblocked, false if any error occur during this operation
+//     */
+//    private boolean handleOverflow() {
+//        messagesQueue.clear();
+//        return true;
+//    }
 
     /**
      * Tries to shutdown all the threads ran in this class so far.
@@ -181,8 +151,10 @@ public class OutputController implements Runnable {
     public void shutdown() {
         if (fileWriter != null)
             fileWriter.close();
-        if (timer != null)
-            timer.cancel();
+        fileWriter = null;
+        if (uiSender != null)
+            uiSender.close();
+        uiSender = null;
     }
 
     /**
@@ -198,39 +170,22 @@ public class OutputController implements Runnable {
      */
     private class FileWriter implements Runnable {
 
-        private boolean open = false;
-        private File file;
-        private BlockingQueue<LinkedList<Message>> messagesQueue;
+        private boolean open;
+        private ObjectOutputStream outputStream;
+        private final LinkedBlockingDeque<Message> messagesQueue;
 
         /**
          * Constructor of the class which accepts a File and sets it as the output of writing operations.
          * @param file Given File to store message data in
          */
-        public FileWriter(File file) {
-            this.file = file;
-            this.messagesQueue = new ArrayBlockingQueue<>(QUEUE_DEFAULT_SIZE);
+        public FileWriter(File file) throws IOException {
+            outputStream = new ObjectOutputStream(new FileOutputStream(file, false));
+            messagesQueue = new LinkedBlockingDeque<>();
+//            this.messagesQueue = new ArrayBlockingQueue<>(QUEUE_DEFAULT_SIZE);
         }
 
-
-        /**
-         * Puts the given message in the {@link java.util.concurrent.BlockingQueue BlockingQueue} in order to
-         * store to file as soon as possible.
-         * <p>
-         *     This method makes the class enable to have a local copy of message queue, during the file
-         *     processing operations (The outer copy could be destroyed).
-         * </p>
-         * @param messages The given message linked list, in order to save as a local copy in
-         *                 {@link java.util.concurrent.BlockingQueue BlockingQueue}
-         */
-        public void putMessages(LinkedList<Message> messages) {
-            try {
-                this.messagesQueue.put(messages);
-                synchronized (messagesQueue) {
-                    messagesQueue.notifyAll();
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Put messages in FileWriter blocking queue interrupted");
-            }
+        public void queue(Message msg) {
+            messagesQueue.add(msg);
         }
 
         /**
@@ -246,9 +201,20 @@ public class OutputController implements Runnable {
          */
         @Override
         public void run() {
+            if (open)
+                return;
             open = true;
-            while (open || messagesQueue.size() > 0) {
-                writeToFile();
+            try {
+                while (open) {
+                    while (!messagesQueue.isEmpty())
+                        writeToFile(messagesQueue.pollFirst(1, TimeUnit.SECONDS));
+                }
+            } catch (InterruptedException ignored) {
+            } finally {
+                try {
+                    outputStream.close();
+                } catch (IOException ignored) {
+                }
             }
         }
 
@@ -260,27 +226,13 @@ public class OutputController implements Runnable {
          *     next file in the {@link java.util.concurrent.BlockingQueue BlockingQueue}
          * </p>
          */
-        private void writeToFile() {
+        private void writeToFile(Message msg) {
+            if (msg == null)
+                return;
             try {
-                try {
-                    OutputStream outputStream = new FileOutputStream(file);
-                    OutputStream buffer = new BufferedOutputStream(outputStream);
-                    ObjectOutput outputFile = new ObjectOutputStream(buffer);
-                    while (!messagesQueue.isEmpty()) {
-                        for (Message message : messagesQueue.take()) {
-                            outputFile.writeObject(message);
-                        }
-                    }
-                } catch (FileNotFoundException fileNotFound) {
-                    throw new RuntimeException("Could not find the log file");
-                } catch (IOException ioException) {
-                    throw new RuntimeException("Could not write on the log file");
-                }
-                synchronized (messagesQueue) {
-                    messagesQueue.notifyAll();
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Taking from FileWriter message queue interrupted.");
+                outputStream.writeObject(msg);
+            } catch (IOException e) {
+                Log.i(TAG, "Write to file failed.", e);
             }
         }
 
@@ -293,7 +245,7 @@ public class OutputController implements Runnable {
          * </p>
          */
         public void close() {
-            this.open = false;
+            open = false;
         }
     }
 
@@ -308,11 +260,18 @@ public class OutputController implements Runnable {
      *     thread of OutputController to sleep.
      * </p>
      */
-    private class UINetworkSender extends TimerTask {
+    private class UINetworkSender implements Runnable {
 
-        private final static int CONNECTION_TIMEOUT = 1000;
+        private boolean open;
+        private final LinkedBlockingDeque<Message> messagesQueue;
 
-        private boolean sent = false;
+        public UINetworkSender() {
+            messagesQueue = new LinkedBlockingDeque<>();
+        }
+
+        public void queue(Message msg) {
+            messagesQueue.add(msg);
+        }
 
         /**
          * Implemented run method from {@link java.lang.Runnable Runnable} class which sends the first message in the
@@ -328,22 +287,16 @@ public class OutputController implements Runnable {
          */
         @Override
         public void run() {
-            Message message;
-            synchronized (messagesQueue) {
-                while (messagesQueue.size() <= 0) {
-                    try {
-                        messagesQueue.wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException("Wait on UINetworkSender interrupted");
-                    }
+            if (open)
+                return;
+            open = true;
+            try {
+                while (open) {
+                    while (!messagesQueue.isEmpty())
+                        sendToUINetwork(messagesQueue.pollFirst(1, TimeUnit.SECONDS));
                 }
-                message = messagesQueue.getFirst();
-                if (sent) {
-                    messagesQueue.removeFirst();
-                }
+            } catch (InterruptedException ignored) {
             }
-            sent = false;
-            sendToUINetwork(message);
         }
 
         /**
@@ -359,26 +312,14 @@ public class OutputController implements Runnable {
          * </p>
          */
         private void sendToUINetwork(Message message) {
-            if (sendToUI) {
-                Callable<Void> run = () -> {
-                    uiNetwork.sendBlocking(message);
-                    return null;
-                };
-                RunnableFuture runnableFuture = new FutureTask<>(run);
-                ExecutorService service = Executors.newSingleThreadExecutor();
-                service.execute(runnableFuture);
-                try {
-                    runnableFuture.get(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
-                    sent = true;
-                } catch (ExecutionException execution) {
-                    throw new RuntimeException("Connection to the UI failed in execution");
-                } catch (TimeoutException timeOut) {
-                    runnableFuture.cancel(true);
-                } catch (InterruptedException interrupted) {
-                    throw new RuntimeException("Connection to the UI interrupted");
-                }
-                service.shutdown();
-            }
+            if (message == null)
+                return;
+            uiNetwork.sendBlocking(message);
         }
+
+        public void close() {
+            open = false;
+        }
+
     }
 }

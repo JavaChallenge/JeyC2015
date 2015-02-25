@@ -87,10 +87,8 @@ public class GameHandler {
         Configs.OutputHandlerConfig outputHandlerConfig = Configs.getConfigs().outputHandler;
         mOutputController = new OutputController(outputHandlerConfig.sendToUI,
                                                     mUINetwork,
-                                                    outputHandlerConfig.timeInterval,
                                                     outputHandlerConfig.sendToFile,
-                                                    new File(outputHandlerConfig.filePath),
-                                                    outputHandlerConfig.bufferSize);
+                                                    new File(outputHandlerConfig.filePath));
     }
 
     /**
@@ -200,15 +198,6 @@ public class GameHandler {
             Callable<Void> simulate = () -> {
                 mGameLogic.simulateEvents(terminalEvents, environmentEvents, clientEvents);
                 mGameLogic.generateOutputs();
-                if (mGameLogic.isGameFinished()) {
-                    mGameLogic.terminate();
-                    Message shutdown = new Message(Message.NAME_SHUTDOWN, new Object[] {});
-                    for (int i = 0; i < mClientsInfo.length; i++) {
-                        mClientNetwork.queue(i, shutdown);
-                    }
-                    mLoop.shutdown();
-                    mOutputController.shutdown();
-                }
 
                 mOutputController.putMessage(mGameLogic.getUIMessage());
                 mOutputController.putMessage(mGameLogic.getStatusMessage());
@@ -216,6 +205,15 @@ public class GameHandler {
                 Message[] output = mGameLogic.getClientMessages();
                 for (int i = 0 ; i < output.length; ++i) {
                     mClientNetwork.queue(i, output[i]);
+                }
+
+                if (mGameLogic.isGameFinished()) {
+                    mClientNetwork.sendAllBlocking();
+                    mGameLogic.terminate();
+                    mClientNetwork.shutdownAll();
+                    mLoop.shutdown();
+                    mOutputController.shutdown();
+                    return null;
                 }
 
                 mClientNetwork.startReceivingAll();

@@ -10,7 +10,7 @@ public class DynamicGameObject extends GameObject {
 
     public static final int CELL_OTHER_INDEX_TEAM_ID = 0;
 
-    final protected int teamId;
+    private final int teamId;
 
     public DynamicGameObject(int teamId) {
         this.teamId = teamId;

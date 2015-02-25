@@ -122,6 +122,10 @@ public class ClientHandler {
             while (!terminateFlag) {
                 try {
                     Message msg = messagesToSend.take();
+                    if (terminateFlag)
+                        return;
+                    if (msg == null)
+                        continue;
                     client.send(msg);
                 } catch (Exception e) {
                     Log.i(TAG, "Message sending failure", e);
@@ -184,14 +188,11 @@ public class ClientHandler {
         return () -> {
             while (!terminateFlag) {
                 try {
-                    waitForClient();
                     receive();
                     if (timeValidator.get() && lastReceivedMessage != null)
                         synchronized (receivedMessages) {
                             receivedMessages.add(lastReceivedMessage);
                         }
-                } catch (InterruptedException e) {
-                    Log.i(TAG, "waiting for client interrupted", e);
                 } catch (IOException e) {
                     Log.i(TAG, "message receiving failure", e);
                     handleIOE(e);
@@ -208,9 +209,9 @@ public class ClientHandler {
      * @throws IOException if an I/O error occurs.
      */
     private void receive() throws IOException {
+        lastReceivedMessage = null;
         if (terminateFlag)
             return;
-        lastReceivedMessage = null;
         lastReceivedMessage = client.get(ReceivedMessage.class);
         synchronized (messageNotifier) {
             messageNotifier.notifyAll();
@@ -280,16 +281,7 @@ public class ClientHandler {
      * changes a flag.
      */
     public void terminate() {
-        try {
-            terminateFlag = true;
-            synchronized (clientLock) {
-                if (client != null)
-                    client.close();
-            }
-        } catch (IOException e) {
-            Log.i(TAG, "Socket closing failure.", e);
-        }
-        client = null;
+        terminateFlag = true;
     }
 
     /**

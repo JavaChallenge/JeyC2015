@@ -16,7 +16,7 @@ public class StaticGameObject extends GameObject {
         this.turn = turn;
     }
 
-    StaticGameObject(int turn, String id)
+    public StaticGameObject(int turn, String id)
     {
         this.turn = turn;
         this.id = id;

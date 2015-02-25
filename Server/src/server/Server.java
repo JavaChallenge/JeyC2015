@@ -115,7 +115,7 @@ public class Server {
             mClientsInfo[i].setID(id);
         }
 
-        if (Configs.getConfigs().ui.enable) {
+        if (Configs.getConfigs().outputHandler.sendToUI) {
             mGameHandler.getUINetwork().listen(mUIConfig.port);
             mGameHandler.getClientNetwork().listen(mClientConfig.port);
 
