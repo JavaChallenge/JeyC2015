@@ -13,7 +13,12 @@ public class Constants {
 
     public static final int CELL_MIN_ENERGY_FOR_MITOSIS = ServerConstants.CELL_MIN_ENERGY_FOR_MITOSIS;
     public static final int CELL_MAX_ENERGY = ServerConstants.CELL_MAX_ENERGY;
-    public static final int CELL_GAIN_RATE = ServerConstants.CELL_GAIN_RATE;
-    public static final int CELL_DEPTH_OF_FIELD = ServerConstants.CELL_DEPTH_OF_FIELD;
+//    public static final int CELL_GAIN_RATE = ServerConstants.CELL_GAIN_RATE;
+//    public static final int CELL_DEPTH_OF_FIELD = ServerConstants.CELL_DEPTH_OF_FIELD;
+
+    public static final int CELL_MAX_DEPTH_OF_FIELD = ServerConstants.CELL_MAX_DEPTH_OF_FIELD;
+    public static final int CELL_MAX_GAIN_RATE = ServerConstants.CELL_MAX_GAIN_RATE;
+    public static final int CELL_MAX_ATTACK = ServerConstants.CELL_MAX_ATTACK;
+    public static final int CELL_MAX_JUMP = ServerConstants.CELL_MAX_JUMP;
 
 }

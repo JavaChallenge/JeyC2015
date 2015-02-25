@@ -101,8 +101,8 @@ public class ServerConstants {
 
     public static final int CELL_MIN_ENERGY_FOR_MITOSIS = 80;
     public static final int CELL_MAX_ENERGY = 100;
-    public static final int CELL_GAIN_RATE = 15;
-    public static final int CELL_DEPTH_OF_FIELD = 2;
+//    public static final int CELL_GAIN_RATE = 15;
+//    public static final int CELL_DEPTH_OF_FIELD = 2;
 
     public static final Charset MAP_FILE_ENCODING = Charset.forName("UTF-8");
 
