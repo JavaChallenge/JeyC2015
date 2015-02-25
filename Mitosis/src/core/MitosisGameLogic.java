@@ -563,9 +563,13 @@ public class MitosisGameLogic implements GameLogic {
     }
 
     public Message getStatusMessage() {
-        Object[] args = new Object[] {new Object()};
 
-
+        HashMap<String, Integer>scores =  new HashMap<>();
+        for(Team team : mTeams)
+        {
+            scores.put(team.getName(), team.getScore());
+        }
+        Object[] args = new Object[] {scores};
 
         Message status = new Message(Message.NAME_STATUS, args);
         return status;
