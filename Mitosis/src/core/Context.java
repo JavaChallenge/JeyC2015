@@ -24,6 +24,7 @@ public class Context {
 
     private ClientInfo[] clientsInfo;
     private Map map;
+    private EventValidationMap evMap;
     private Team[] teams;
     private String[] viewsList;
 
@@ -102,6 +103,7 @@ public class Context {
         // create map
         int w = fs.map.width, h = fs.map.height;
         map = new Map(this, w, h);
+        evMap = new EventValidationMap(this, map, w, h);
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 Map.BlockStructure block = fs.map.blocks[i][j];
@@ -170,6 +172,10 @@ public class Context {
 
     public Map getMap(){
         return map;
+    }
+
+    public EventValidationMap getEvMap() {
+        return evMap;
     }
 
     void incTurn()

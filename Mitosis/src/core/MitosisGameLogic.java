@@ -326,41 +326,78 @@ public class MitosisGameLogic implements GameLogic {
         }
 
         // handling move events
-        Collections.shuffle(moveEvents);
+//        Collections.shuffle(moveEvents);
         //System.out.println(moveEvents.size());
         ArrayList<GameEvent> validMoveEvents = new ArrayList<>();
-        for (GameEvent event: moveEvents) {
-            Cell cell = ctx.getCell(event.getGameObjectId());
-            if (cell == null) continue;
+//        HashMap<Cell, GameEvent> validMoveEvents = new HashMap<>();
 
+        for (GameEvent event : moveEvents) {
+            Cell cell = ctx.getCell(event.getGameObjectId());
+            if (cell == null)
+                continue;
             Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
-            Position nextPos = cell.getPos().getNextPos(dir);
-            if(!ctx.checkBounds(nextPos))
-            {
+            Position pos = cell.getPos();
+            Position nextPos = pos.getNextPos(dir);
+            if (!ctx.checkBounds(nextPos) || !ctx.checkBounds(pos))
+                continue;
+            Block nextBlock = map.at(nextPos);
+            int nextHeight = nextBlock.getHeight();
+            int currentHeight = nextBlock.getHeight();
+            if (nextHeight > currentHeight + cell.getJump()) {
                 continue;
             }
-            Block block = map.at(nextPos);
-
-            if (!block.isMovable()){
+            if (!nextBlock.isMovable())
                 continue; // if this block is not movable
-            }
             //System.out.println(cell.getId());
-            if (block.isEmpty()) {
-                validMoveEvents.add(event);
-                //cell.move(nextPos);
-            }
+            //if (nextBlock.isEmpty())
+            validMoveEvents.add(event);
+//            validEvents.add(new EventValidationCell())
+            //cell.move(nextPos);
         }
-        for(GameEvent event: validMoveEvents)//TODO
-        {
-            Cell cell = ctx.getCell(event.getGameObjectId());
 
+        int n = validMoveEvents.size();
+        Cell[] cells = new Cell[n];
+        Position[] starts = new Position[n];
+        Position[] ends = new Position[n];
+
+        for (int i = 0; i < n; i++) {
+            GameEvent event = validMoveEvents.get(i);
+            cells[i] = ctx.getCell(event.getGameObjectId());
             Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
-            Position nextPos = cell.getPos().getNextPos(dir);
-            Block block = map.at(nextPos);
-            if (block.isEmpty()) {
-                cell.move(nextPos);
+            starts[i] = cells[i].getPos();
+            ends[i] = starts[i].getNextPos(dir);
+        }
+
+//        ArrayList<EventValidationCell> validEvents = new ArrayList<>();
+
+        long start = System.currentTimeMillis();
+        boolean[] validationResult = ctx.getEvMap().validate(validMoveEvents);
+        long end = System.currentTimeMillis();
+        System.out.println("validation time = " + (end-start));
+
+        for (int i = 0; i < n; i++) {
+            if (validationResult[i]) {
+                map.at(starts[i]).removeCell();
+//                cell.move(cell.getPos().getNextPos(dir));
             }
         }
+
+        for (int i = 0; i < n; i++) {
+            if (validationResult[i]) {
+                map.at(ends[i]).setCell(cells[i]);
+                cells[i].setPos(ends[i]);
+            }
+        }
+//
+//        for (GameEvent event: validMoveEvents) {
+//            Cell cell = ctx.getCell(event.getGameObjectId());
+//            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
+//            Position pos = cell.getPos();
+//            Position nextPos = pos.getNextPos(dir);
+//            Block nextBlock = map.at(nextPos);
+//            if (nextBlock.isEmpty())
+//                cell.move(nextPos);
+//        }
 
         // handling gain resource events
         for (GameEvent event: gainResourceEvents) {
