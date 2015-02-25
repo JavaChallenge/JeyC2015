@@ -122,4 +122,9 @@ public class Team {
     public void setScore(int mScore) {
         this.mScore = mScore;
     }
+
+    public String getName()
+    {
+        return mInfo.getName();
+    }
 }
