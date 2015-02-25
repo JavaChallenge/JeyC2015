@@ -143,14 +143,14 @@ public class Cell {
     public boolean equals(Object o) {
         if (o instanceof Cell) {
             Cell c = (Cell) o;
-            return mPos.equals(c.mPos);
+            return mId.equals(c.mId);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return mPos.hashCode();
+        return mId.hashCode();
     }
 
 }

@@ -87,6 +87,10 @@ public class Cell extends DynamicGameObject {
         return gainRate;
     }
 
+    public int getJump() {
+        return jump;
+    }
+
     public void setDepthOfField(int depthOfField) {
 
         this.depthOfField = depthOfField;
