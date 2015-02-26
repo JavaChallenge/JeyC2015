@@ -347,12 +347,14 @@ public class MitosisGameLogic implements GameLogic {
                 Position nextPos = pos.getNextPos(dir);
                 if (!ctx.checkBounds(nextPos) || !ctx.checkBounds(pos))
                     continue;
+                Block block = map.at(pos);
                 Block nextBlock = map.at(nextPos);
+                int currentHeight = block.getHeight();
                 int nextHeight = nextBlock.getHeight();
-                int currentHeight = nextBlock.getHeight();
                 if (nextHeight > currentHeight + cell.getJump()) {
                     continue;
                 }
+//                System.out.printf("jump:%d, from:%d, to:%d%n", cell.getJump(), nextHeight);
                 if (!nextBlock.isMovable())
                     continue; // if this block is not movable
                 //System.out.println(cell.getId());
@@ -363,6 +365,8 @@ public class MitosisGameLogic implements GameLogic {
             } catch (Exception ignored) {
             }
         }
+
+//        System.out.println("valid move events: " + validMoveEvents.size());
 
         int n = validMoveEvents.size();
         Cell[] cells = new Cell[n];
@@ -379,10 +383,7 @@ public class MitosisGameLogic implements GameLogic {
 
 //        ArrayList<EventValidationCell> validEvents = new ArrayList<>();
 
-        long start = System.currentTimeMillis();
         boolean[] validationResult = ctx.getEvMap().validate(validMoveEvents);
-        long end = System.currentTimeMillis();
-        System.out.println("validation time = " + (end-start));
 
         for (int i = 0; i < n; i++) {
             if (validationResult[i]) {
@@ -505,7 +506,7 @@ public class MitosisGameLogic implements GameLogic {
                 //visit pos
                 team.visitPosition(pos);
             }
-            System.out.println("team " + team.getId() + " current : " + team.getCurrentVisibleCells().size() + " last : " + team.getLastVisibleCells().size());
+//            System.out.println("team " + team.getId() + " current : " + team.getCurrentVisibleCells().size() + " last : " + team.getLastVisibleCells().size());
             for(java.util.Map.Entry entry : team.getLastVisibleCells().entrySet())
             {
                 String id = (String)entry.getKey();
@@ -517,7 +518,7 @@ public class MitosisGameLogic implements GameLogic {
                         // a live cell -> should be opponent
                         if(!team.isOpp(cell))
                         {
-                            System.out.println("not dead! not opp!");
+//                            System.out.println("not dead! not opp!");
                             //What?!
                         }
                         else
@@ -531,7 +532,7 @@ public class MitosisGameLogic implements GameLogic {
                     else
                     {
                         // a dead cell -> team mate or opponent
-                        System.out.println("dead!");
+//                        System.out.println("dead!");
                         ObjectDiff objectDiff = cell.getTeamViewDiffs(team.getId());
                         dynamicDiffs.add(objectDiff.clone());
                         objectDiff.clearChanges();

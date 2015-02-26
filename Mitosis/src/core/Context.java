@@ -133,6 +133,9 @@ public class Context {
                 int energy = instance.values[3].intValue();
                 int gainRate = instance.values[4].intValue();
                 int attack = instance.values[5].intValue();
+                // ignore additional teams
+                if (teamID >= clientsInfo.length)
+                    continue;
                 Cell cell = new Cell(this, new Position(x, y), teamID, dof, energy, gainRate, jump, attack);
                 addCell(cell);
             }
