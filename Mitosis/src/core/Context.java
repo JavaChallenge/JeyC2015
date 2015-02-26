@@ -235,7 +235,7 @@ public class Context {
     public boolean killCell(Cell cell)
     {
         map.at(cell.getPos()).removeCell();
-        allDynamicObjects.remove(cell.getId());
+        allCells.remove(cell.getId());
         allDynamicObjects.remove(cell.getId());
         teams[cell.getTeamId()].removeCell(cell.getId());
         cell.die();
