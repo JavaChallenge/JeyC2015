@@ -19,7 +19,7 @@ public class Map {
         this.nodes = new ArrayList<Node>();
         this.mapName = mapName;
         try {
-            FileReader fr = new FileReader(mapName + ".text");
+            FileReader fr = new FileReader(mapName);
             BufferedReader br = new BufferedReader(fr);
 
             String line = br.readLine();

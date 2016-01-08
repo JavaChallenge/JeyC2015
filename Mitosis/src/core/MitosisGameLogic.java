@@ -209,12 +209,10 @@ public class MitosisGameLogic implements GameLogic {
 
 
         if (clientsEvent != null || environmentEvent != null || terminalEvent != null) {
-            if (clientsEvent != null)
-            {
+            if (clientsEvent != null){
                 for (int i = 0; i < mTeams.length; i++) {
                     if (clientsEvent[i] == null) continue;
-                    for(int j = 0; j < clientsEvent[i].length; j++)
-                    {
+                    for(int j = 0; j < clientsEvent[i].length; j++){
                         GameEvent event = new GameEvent(clientsEvent[i][j]);
                         //event.getGameObjectId() TODO CHECK OWNER
                         if(ctx.getDynamicObject(event.getObjectId()).getTeamId() != i) {
@@ -224,24 +222,22 @@ public class MitosisGameLogic implements GameLogic {
                         gameObjectEvents.put(event.getGameObjectId(), event);
 
                     }
-                    //GameEvent[] teamEvent = (GameEvent[]) clientsEvent[i];
-                    /*for (GameEvent event: teamEvent) {
+                    GameEvent[] teamEvent = (GameEvent[]) clientsEvent[i];
+                    for (GameEvent event: teamEvent) {
                         event.setTeamId(i);
                         if (!gameObjectEvents.containsKey(event.getGameObjectId()))
                             gameObjectEvents.put(event.getGameObjectId(), event);
-                    }*/
+                    }
                 }
             }
-            if (environmentEvent != null)
-            {
+            if (environmentEvent != null){
                 for (GameEvent event: (GameEvent[])environmentEvent) {
                     event.setTeamId(-1);
                     gameObjectEvents.put(event.getGameObjectId(), event);
                 }
 
             }
-            if (terminalEvent != null)
-            {
+            if (terminalEvent != null){
                 //TODO
                 /*for (GameEvent event: (GameEvent[])terminalEvent) {
                     event.setTeamId(-2);
@@ -369,9 +365,9 @@ public class MitosisGameLogic implements GameLogic {
 
             //TODO fill dynamics, statics and transients
             HashSet<Position> visiblePos = new HashSet();
-            for (Cell cell: team.getCells()) {
-                ctx.getAllPositionsCanSee(visiblePos, cell.getPos(), cell.getDepthOfField());
-            }
+//            for (Cell cell: team.getCells()) {
+//                ctx.getAllPositionsCanSee(visiblePos, cell.getPos(), cell.getDepthOfField());
+//            }
 
 //            for(Position pos : visiblePos)
 //            {

@@ -20,8 +20,7 @@ public class GameEvent extends Event {
 
     private int src, dst, amount;
 
-    public GameEvent(Event event)
-    {
+    public GameEvent(Event event){
         type = event.getType();
         objectId = event.getObjectId();
         args = event.getArgs();
@@ -31,6 +30,18 @@ public class GameEvent extends Event {
         this.src = src;
         this.dst = dst;
         this.amount = amount;
+    }
+
+    public int getSrc() {
+        return src;
+    }
+
+    public int getDst() {
+        return dst;
+    }
+
+    public int getAmount() {
+        return amount;
     }
 
     public String getGameObjectId() {
@@ -61,8 +72,7 @@ public class GameEvent extends Event {
         return args;
     }
 
-    public void setArg(String value, int index)
-    {
+    public void setArg(String value, int index){
         args[index] = value;
     }
 }
