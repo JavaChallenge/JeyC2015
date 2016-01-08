@@ -6,141 +6,60 @@ import model.Position;
 import util.Constants;
 import util.ServerConstants;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 public class Map {
-    private Context ctx;
-    private int width, height;
-    private Block[][] mBlocks;
+    private int nodeCount;
+    private String mapName;
+    private ArrayList<Node> nodes;
 
-    public Map(Context ctx, int w, int h) {
-        this.ctx = ctx;
-        width = w;
-        height = h;
-        mBlocks = new Block[h][w];
-    }
+    public Map(String mapName) {
+        this.nodes = new ArrayList<Node>();
+        this.mapName = mapName;
+        try {
+            FileReader fr = new FileReader(mapName + ".text");
+            BufferedReader br = new BufferedReader(fr);
 
-    public static class ObjectStructure {
-        public int x, y;
-        public Number[] values;
-    }
-
-    public static class TypeStructure {
-        public String name;
-        public String[] keys;
-        public Number[] defaults;
-        public String coloring;
-        public ObjectStructure[] instances;
-    }
-
-    public static class BlockStructure {
-        public Number[] values;
-    }
-
-    public static class MapStructure {
-        public int width, height;
-        public String[] keys;
-        public Number[] defaults;
-        public String coloring;
-        public BlockStructure[][] blocks;
-    }
-
-    public static class FileStructure {
-        public MapStructure map;
-        public TypeStructure[] objects;
-    }
-
-    public static Map load(Context ctx, String dir) throws IOException, IOException {
-
-
-        String[] types = {
-                ServerConstants.BLOCK_TYPE_NONE,
-                ServerConstants.BLOCK_TYPE_NORMAL,
-                ServerConstants.BLOCK_TYPE_MITOSIS,
-                ServerConstants.BLOCK_TYPE_RESOURCE,
-                ServerConstants.BLOCK_TYPE_IMPASSABLE
-        };
-
-        File file = new File(dir);
-        String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
-//        System.out.println(json);
-        FileStructure fs = new Gson().fromJson(json, FileStructure.class);
-
-        // create map
-        int w = fs.map.width, h = fs.map.height;
-        Map map = new Map(ctx, w, h);
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                BlockStructure block = fs.map.blocks[j][i];
-                int type = block.values[0].intValue();
-                int height = block.values[1].intValue();
-                int resource = block.values[2].intValue();
-                boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
-                Block b = new Block(ctx, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
-                map.set(j, i, b);
+            String line = br.readLine();
+            this.nodeCount = Integer.valueOf(line);
+            for(int i = 0; i < this.nodeCount; i++){
+                line = br.readLine();
+                String args[] = line.split("[ ]");
+                Node temp = new Node(Integer.valueOf(args[1]), Integer.valueOf(args[2]), i);
+                this.nodes.add(temp);
+//                System.out.println("node" + args[0] + " added with (" + args[1] + "," + args[2] + ")");
             }
-        }
-
-        // create objects
-        for (TypeStructure type : fs.objects) {
-            ObjectStructure[] instances = type.instances;
-            for (ObjectStructure instance : instances) {
-                int x = instance.x, y = instance.y;
-                int teamID = instance.values[0].intValue();
-                int dof = instance.values[1].intValue();
-                int energy = instance.values[2].intValue();
-                int gainRate = instance.values[3].intValue();
-//                dof = Constants.CELL_DEPTH_OF_FIELD;
-//                gainRate = Constants.CELL_GAIN_RATE;
-                Cell cell = new Cell(ctx, new Position(x, y), teamID, dof, energy, gainRate);
-                ctx.addCell(cell);
+            line = br.readLine();
+            while (line != null){
+                String args[] = line.split("[ ]");
+                int neighborCount = args.length - 1;
+                for(int j = 0; j < neighborCount; j++){
+                    this.nodes.get(Integer.valueOf(args[0])).addNeighbor(this.nodes.get(Integer.valueOf(args[j + 1])));
+                    this.nodes.get(Integer.valueOf(args[j + 1])).addNeighbor(this.nodes.get(Integer.valueOf(args[0])));
+//                    System.out.println("node" + args[j + 1] + " and node" + args[0]);
+                }
+                line = br.readLine();
             }
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return map;
     }
 
-    /*public void load(String dir)
-    {
-        //TODO LOADING
-        for(int i = 0; i < width; i++)
-        {
-            for(int j = 0; j < height; j++)
-            {
-                mBlocks[j][i] = new Block(ctx, Constants.TURN_MAKE_MAP, i, j, 1, 2, Constants.BLOCK_TYPE_MITOSIS, true);
-            }
-        }
-
-        ctx.addCell((new Cell(ctx, new Position(width / 2, height / 2), 0, Constants.CELL_DEPTH_OF_FIELD, 10, Constants.CELL_GAIN_RATE)));
-        ctx.addCell(new Cell(ctx,new Position(width / 2, height / 2 + 1), 0, Constants.CELL_DEPTH_OF_FIELD, 10, Constants.CELL_GAIN_RATE));
-        //mBlocks[height/2][width/2].setCell(new Cell(ctx, new Position(width / 2, height / 2), 0, 2, 100, 20));
-        //mBlocks[height/2 + 1][width/2].setCell(new Cell(ctx,new Position(width / 2, height / 2 + 1), 0, 2, 100, 20));
-    }*/
-
-    public int getWidth() {
-        return width;
+    public Node getNodeAt(int index){
+        return this.nodes.get(index);
     }
 
-    public int getHeight() {
-        return height;
+    public int getNodeCount() {
+        return nodeCount;
     }
 
-    public Block at(int x, int y) {
-        return mBlocks[y][x];
-    }
-
-    public Block at(Position pos)
-    {
-        return mBlocks[pos.getY()][pos.getX()];
-    }
-
-    public void set(int x, int y, Block block) {
-        mBlocks[y][x] = block;
-    }
-
-    public Block[][] getBlocks() {
-        return mBlocks;
+    public String getMapName() {
+        return mapName;
     }
 }

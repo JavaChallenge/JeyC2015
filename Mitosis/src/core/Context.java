@@ -62,7 +62,7 @@ public class Context {
         }
 
         //load map
-        loadMap(mapDir);
+//        loadMap(mapDir);
         //map = Map.load(this, mapDir);
 
         //make teams map
@@ -71,53 +71,53 @@ public class Context {
         }
     }
 
-    private void loadMap(String dir) throws IOException {
-        String[] types = {
-                ServerConstants.BLOCK_TYPE_NONE,
-                ServerConstants.BLOCK_TYPE_NORMAL,
-                ServerConstants.BLOCK_TYPE_MITOSIS,
-                ServerConstants.BLOCK_TYPE_RESOURCE,
-                ServerConstants.BLOCK_TYPE_IMPASSABLE
-        };
-
-        File file = new File(dir);
-        String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
-        //System.out.println(json);
-        Map.FileStructure fs = new Gson().fromJson(json, Map.FileStructure.class);
-
-        // create map
-        int w = fs.map.width, h = fs.map.height;
-        map = new Map(this, w, h);
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                Map.BlockStructure block = fs.map.blocks[i][j];
-                int type = block.values[0].intValue();
-                int height = block.values[1].intValue();
-                int resource = block.values[2].intValue();
-                boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
-                if (type != 3)
-                    resource = 0;
-                Block b = new Block(this, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
-                map.set(j, i, b);
-            }
-        }
-
-        // create objects
-        for (Map.TypeStructure type : fs.objects) {
-            Map.ObjectStructure[] instances = type.instances;
-            for (Map.ObjectStructure instance : instances) {
-                int x = instance.x, y = instance.y;
-                int teamID = instance.values[0].intValue();
-                int dof = instance.values[1].intValue();
-                int energy = instance.values[2].intValue();
-                int gainRate = instance.values[3].intValue();
-                dof = Constants.CELL_DEPTH_OF_FIELD;
-                gainRate = Constants.CELL_GAIN_RATE;
-                Cell cell = new Cell(this, new Position(x, y), teamID, dof, energy, gainRate);
-                addCell(cell);
-            }
-        }
-    }
+//    private void loadMap(String dir) throws IOException {
+//        String[] types = {
+//                ServerConstants.BLOCK_TYPE_NONE,
+//                ServerConstants.BLOCK_TYPE_NORMAL,
+//                ServerConstants.BLOCK_TYPE_MITOSIS,
+//                ServerConstants.BLOCK_TYPE_RESOURCE,
+//                ServerConstants.BLOCK_TYPE_IMPASSABLE
+//        };
+//
+//        File file = new File(dir);
+//        String json = new String(Files.readAllBytes(file.toPath()), ServerConstants.MAP_FILE_ENCODING);
+//        //System.out.println(json);
+//        Map.FileStructure fs = new Gson().fromJson(json, Map.FileStructure.class);
+//
+//        // create map
+//        int w = fs.map.width, h = fs.map.height;
+//        map = new Map(this, w, h);
+//        for (int i = 0; i < h; i++) {
+//            for (int j = 0; j < w; j++) {
+//                Map.BlockStructure block = fs.map.blocks[i][j];
+//                int type = block.values[0].intValue();
+//                int height = block.values[1].intValue();
+//                int resource = block.values[2].intValue();
+//                boolean isMovable = !types[type].equals(ServerConstants.BLOCK_TYPE_IMPASSABLE);
+//                if (type != 3)
+//                    resource = 0;
+//                Block b = new Block(this, ServerConstants.TURN_MAKE_MAP, j, i, height, resource, types[type], isMovable);
+//                map.set(j, i, b);
+//            }
+//        }
+//
+//        // create objects
+//        for (Map.TypeStructure type : fs.objects) {
+//            Map.ObjectStructure[] instances = type.instances;
+//            for (Map.ObjectStructure instance : instances) {
+//                int x = instance.x, y = instance.y;
+//                int teamID = instance.values[0].intValue();
+//                int dof = instance.values[1].intValue();
+//                int energy = instance.values[2].intValue();
+//                int gainRate = instance.values[3].intValue();
+//                dof = Constants.CELL_DEPTH_OF_FIELD;
+//                gainRate = Constants.CELL_GAIN_RATE;
+//                Cell cell = new Cell(this, new Position(x, y), teamID, dof, energy, gainRate);
+//                addCell(cell);
+//            }
+//        }
+//    }
 
     public int getTurn() {
         return turn;
@@ -172,33 +172,33 @@ public class Context {
         return allCells.get(id);
     }
 
-    public boolean addCell(Cell cell) {
-        //checking
-        if (!cell.getType().equals(ServerConstants.GAME_OBJECT_TYPE_CELL)) {
-            return false;
-        }
-        if (!checkBounds(cell.getPos())) {
-            return false;
-        }
-        Block block = map.at(cell.getPos());
-        if (!block.isEmpty()) {
-            return false;
-        }
-
-        //add to map
-        block.setCell(cell);
-
-        //add to allCells
-        allCells.put(cell.getId(), cell);
-
-        //add to allDynamicObjects
-        allDynamicObjects.put(cell.getId(), cell);
-
-        //add to team
-        teams[cell.getTeamId()].addCell(cell);
-
-        return true;
-    }
+//    public boolean addCell(Cell cell) {
+//        //checking
+//        if (!cell.getType().equals(ServerConstants.GAME_OBJECT_TYPE_CELL)) {
+//            return false;
+//        }
+//        if (!checkBounds(cell.getPos())) {
+//            return false;
+//        }
+//        Block block = map.at(cell.getPos());
+//        if (!block.isEmpty()) {
+//            return false;
+//        }
+//
+//        //add to map
+//        block.setCell(cell);
+//
+//        //add to allCells
+//        allCells.put(cell.getId(), cell);
+//
+//        //add to allDynamicObjects
+//        allDynamicObjects.put(cell.getId(), cell);
+//
+//        //add to team
+//        teams[cell.getTeamId()].addCell(cell);
+//
+//        return true;
+//    }
 
     private void calculateRelationVisiblePos(int depthOfField) {
         if (relatedVisiblePositionsFromOdd.size() != relatedVisiblePositionsFromEven.size()) {
@@ -254,62 +254,62 @@ public class Context {
         return relatedVisiblePositionsFromEven;
     }
 
-    public void getAllPositionsCanSee (HashSet<Position> positionsCanSee, Position pos, int depthOfField) {
-        if(positionsCanSee == null)
-        {
-            positionsCanSee = new HashSet<>();
-        }
+//    public void getAllPositionsCanSee (HashSet<Position> positionsCanSee, Position pos, int depthOfField) {
+//        if(positionsCanSee == null)
+//        {
+//            positionsCanSee = new HashSet<>();
+//        }
+//
+//        ArrayList<Position[]> relatedPositions = getRelatedVisiblePositions(pos, depthOfField);
+//        for(Position[] positions : relatedPositions)
+//        {
+//            for(Position p : positions)
+//            {
+//                Position newPos = new Position(p.getX() + pos.getX(), p.getY() + pos.getY());
+//                if(checkBounds(newPos))
+//                {
+//                    positionsCanSee.add(map.at(newPos).getPos());
+//                }
+//            }
+//        }
+//
+//        /*for(int i = depthOfField; i > 0; i--)
+//        {
+//            for(int j = i - depthOfField; j < depthOfField - i + 1; j++)
+//            {
+//                if(checkBounds(new Position(pos.getX() + j, pos.getY() + i))) {
+//                    positionsCanSee.add(map.at(pos.getX() + j, pos.getY() + i).getPos());
+//                }
+//            }
+//        }
+//        for(int i = 0; i >= -depthOfField; i--)
+//        {
+//            for(int j = -depthOfField; j <= depthOfField; j++)
+//            {
+//                if(checkBounds(new Position(pos.getX() + j, pos.getY() + i))) {
+//                    positionsCanSee.add(map.at(pos.getX() + j, pos.getY() + i).getPos());
+//                }
+//            }
+//        }*/
+//        /*for(int i = depthOfField; i >= 0; i--)
+//        {
+//            for(int j = 0; j 6)
+//        }*/
+//        /*--depthOfField;
+//        for (Direction dir: Direction.values()) {
+//            Position currentPos = pos.getNextPos(dir);
+//            if (depthOfField == 0) {
+//                positionsCanSee.add(currentPos);
+//                return;
+//            }
+//            getAllPositionsCanSee(positionsCanSee, currentPos, depthOfField);
+//        }*/
+//    }
 
-        ArrayList<Position[]> relatedPositions = getRelatedVisiblePositions(pos, depthOfField);
-        for(Position[] positions : relatedPositions)
-        {
-            for(Position p : positions)
-            {
-                Position newPos = new Position(p.getX() + pos.getX(), p.getY() + pos.getY());
-                if(checkBounds(newPos))
-                {
-                    positionsCanSee.add(map.at(newPos).getPos());
-                }
-            }
-        }
-
-        /*for(int i = depthOfField; i > 0; i--)
-        {
-            for(int j = i - depthOfField; j < depthOfField - i + 1; j++)
-            {
-                if(checkBounds(new Position(pos.getX() + j, pos.getY() + i))) {
-                    positionsCanSee.add(map.at(pos.getX() + j, pos.getY() + i).getPos());
-                }
-            }
-        }
-        for(int i = 0; i >= -depthOfField; i--)
-        {
-            for(int j = -depthOfField; j <= depthOfField; j++)
-            {
-                if(checkBounds(new Position(pos.getX() + j, pos.getY() + i))) {
-                    positionsCanSee.add(map.at(pos.getX() + j, pos.getY() + i).getPos());
-                }
-            }
-        }*/
-        /*for(int i = depthOfField; i >= 0; i--)
-        {
-            for(int j = 0; j 6)
-        }*/
-        /*--depthOfField;
-        for (Direction dir: Direction.values()) {
-            Position currentPos = pos.getNextPos(dir);
-            if (depthOfField == 0) {
-                positionsCanSee.add(currentPos);
-                return;
-            }
-            getAllPositionsCanSee(positionsCanSee, currentPos, depthOfField);
-        }*/
-    }
-
-    public boolean checkBounds(Position position) {
-        return position.getX() >= 0 && position.getX() < map.getWidth()
-                && position.getY() >= 0 && position.getY() < map.getHeight();
-    }
+//    public boolean checkBounds(Position position) {
+//        return position.getX() >= 0 && position.getX() < map.getWidth()
+//                && position.getY() >= 0 && position.getY() < map.getHeight();
+//    }
 
     public ArrayList<Direction> getShuffledListOfDirections()
     {

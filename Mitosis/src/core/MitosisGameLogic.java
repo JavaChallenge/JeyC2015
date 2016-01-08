@@ -33,7 +33,6 @@ public class MitosisGameLogic implements GameLogic {
     private static final String RESOURCE_PATH_GAME = "resources/mitosis/game.conf";
     private static final String RESOURCE_PATH_CLIENTS = "resources/mitosis/clients.conf";
 
-
     private Context ctx;
     private Team[] mTeams;
 
@@ -75,27 +74,27 @@ public class MitosisGameLogic implements GameLogic {
         Map map = ctx.getMap();
 
         MapSize mapSize = new MapSize();
-        mapSize.setWidth(map.getWidth());
-        mapSize.setHeight(map.getHeight());
+//        mapSize.setWidth(map.getWidth());
+//        mapSize.setHeight(map.getHeight());
 
         ArrayList<Object> unknownMap = new ArrayList<>();
-        int height = map.getHeight();
-        int width = map.getWidth();
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                HashMap<String, Object> blockMap = new HashMap<>();
-                Block block = map.at(col, row);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_ID, block.getId());
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TYPE, ServerConstants.BLOCK_TYPE_NONE);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TURN, ServerConstants.TURN_WORLD_CREATION);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_POSITION, new Position(block.getX(), block.getY()));
-                HashMap<String,Object> otherDict = new HashMap<>();
-                otherDict.put(ServerConstants.BLOCK_KEY_HEIGHT, 0);
-                otherDict.put(ServerConstants.BLOCK_KEY_RESOURCE, 0);
-                blockMap.put(ServerConstants.GAME_OBJECT_KEY_OTHER, otherDict);
-                unknownMap.add(blockMap);
-            }
-        }
+//        int height = map.getHeight();
+//        int width = map.getWidth();
+//        for (int row = 0; row < height; row++) {
+//            for (int col = 0; col < width; col++) {
+//                HashMap<String, Object> blockMap = new HashMap<>();
+//                Block block = map.at(col, row);
+//                blockMap.put(ServerConstants.GAME_OBJECT_KEY_ID, block.getId());
+//                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TYPE, ServerConstants.BLOCK_TYPE_NONE);
+//                blockMap.put(ServerConstants.GAME_OBJECT_KEY_TURN, ServerConstants.TURN_WORLD_CREATION);
+//                blockMap.put(ServerConstants.GAME_OBJECT_KEY_POSITION, new Position(block.getX(), block.getY()));
+//                HashMap<String,Object> otherDict = new HashMap<>();
+//                otherDict.put(ServerConstants.BLOCK_KEY_HEIGHT, 0);
+//                otherDict.put(ServerConstants.BLOCK_KEY_RESOURCE, 0);
+//                blockMap.put(ServerConstants.GAME_OBJECT_KEY_OTHER, otherDict);
+//                unknownMap.add(blockMap);
+//            }
+//        }
 
 
         //Generate clients init message
@@ -162,12 +161,12 @@ public class MitosisGameLogic implements GameLogic {
                 //calculate static diff for global view
                 ArrayList<StaticData> staticDiff = new ArrayList<>();
 
-                for (int row = 0; row < height; row++) {
-                    for (int col = 0; col < width; col++) {
-                        Block block = map.at(col, row);
-                        staticDiff.add(block.getStaticData());
-                    }
-                }
+//                for (int row = 0; row < height; row++) {
+//                    for (int col = 0; col < width; col++) {
+//                        Block block = map.at(col, row);
+//                        staticDiff.add(block.getStaticData());
+//                    }
+//                }
 
                 viewDif.put(StaticGameObject.NAME, staticDiff);
                 uiDiff.add(viewDif);
@@ -252,21 +251,21 @@ public class MitosisGameLogic implements GameLogic {
             }
 
             Collection<GameEvent> currentTurnEventsList = gameObjectEvents.values();
-            for (GameEvent event: currentTurnEventsList) {
-                switch (event.getType()) {
-                    case GameEvent.TYPE_MOVE:
-                        moveEvents.add(event);
-                        break;
-
-                    case GameEvent.TYPE_GAIN_RESOURCE:
-                        gainResourceEvents.add(event);
-                        break;
-
-                    case GameEvent.TYPE_MITOSIS:
-                        mitosisEvents.add(event);
-                        break;
-                }
-            }
+//            for (GameEvent event: currentTurnEventsList) {
+//                switch (event.getType()) {
+//                    case GameEvent.TYPE_MOVE:
+//                        moveEvents.add(event);
+//                        break;
+//
+//                    case GameEvent.TYPE_GAIN_RESOURCE:
+//                        gainResourceEvents.add(event);
+//                        break;
+//
+//                    case GameEvent.TYPE_MITOSIS:
+//                        mitosisEvents.add(event);
+//                        break;
+//                }
+//            }
         }
 
         Collections.shuffle(mitosisEvents);
@@ -274,11 +273,11 @@ public class MitosisGameLogic implements GameLogic {
             Cell cell = ctx.getCell(event.getGameObjectId());
             if (cell == null) continue;
 
-            Block block = map.at(cell.getPos());
-            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_MITOSIS))
-            {
-                continue;
-            }
+//            Block block = map.at(cell.getPos());
+//            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_MITOSIS))
+//            {
+//                continue;
+//            }
             cell.mitosis();
         }
 
@@ -290,33 +289,33 @@ public class MitosisGameLogic implements GameLogic {
             Cell cell = ctx.getCell(event.getGameObjectId());
             if (cell == null) continue;
 
-            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
-            Position nextPos = cell.getPos().getNextPos(dir);
-            if(!ctx.checkBounds(nextPos))
-            {
-                continue;
-            }
-            Block block = map.at(nextPos);
-
-            if (!block.isMovable()){
-                continue; // if this block is not movable
-            }
-            //System.out.println(cell.getId());
-            if (block.isEmpty()) {
-                validMoveEvents.add(event);
-                //cell.move(nextPos);
-            }
+//            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
+//            Position nextPos = cell.getPos().getNextPos(dir);
+//            if(!ctx.checkBounds(nextPos))
+//            {
+//                continue;
+//            }
+//            Block block = map.at(nextPos);
+//
+//            if (!block.isMovable()){
+//                continue; // if this block is not movable
+//            }
+//            //System.out.println(cell.getId());
+//            if (block.isEmpty()) {
+//                validMoveEvents.add(event);
+//                //cell.move(nextPos);
+//            }
         }
         for(GameEvent event: validMoveEvents)//TODO
         {
             Cell cell = ctx.getCell(event.getGameObjectId());
 
-            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
-            Position nextPos = cell.getPos().getNextPos(dir);
-            Block block = map.at(nextPos);
-            if (block.isEmpty()) {
-                cell.move(nextPos);
-            }
+//            Direction dir = Direction.valueOf(event.getArgs()[GameEvent.ARG_INDEX_MOVE_DIRECTION]);
+//            Position nextPos = cell.getPos().getNextPos(dir);
+//            Block block = map.at(nextPos);
+//            if (block.isEmpty()) {
+//                cell.move(nextPos);
+//            }
         }
 
         // handling gain resource events
@@ -325,16 +324,16 @@ public class MitosisGameLogic implements GameLogic {
             Cell cell = ctx.getCell(event.getGameObjectId());
             if (cell == null) continue;
 
-            Block block = map.at(cell.getPos());
-            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_RESOURCE))
-            {
-                continue;
-            }
-            //System.out.println(block.getResource());
-            if(block.getResource() > 0)
-            {
-                cell.gainResource();
-            }
+//            Block block = map.at(cell.getPos());
+//            if(!block.getType().equals(ServerConstants.BLOCK_TYPE_RESOURCE))
+//            {
+//                continue;
+//            }
+//            //System.out.println(block.getResource());
+//            if(block.getResource() > 0)
+//            {
+//                cell.gainResource();
+//            }
         }
 
         for(Team team : mTeams)
@@ -374,28 +373,28 @@ public class MitosisGameLogic implements GameLogic {
                 ctx.getAllPositionsCanSee(visiblePos, cell.getPos(), cell.getDepthOfField());
             }
 
-            for(Position pos : visiblePos)
-            {
-                Block block = map.at(pos);
-
-                //add dynamics
-                if(!block.isEmpty())
-                {
-                    dynamics.add(block.getCell().getDynamicData());
-                }
-
-                //add statics
-                if(block.getLastChangeTurn() >= team.getLastVisitTurn(pos))
-                {
-                    statics.add(block.getStaticData());
-                }
-
-                //add transient
-
-
-                //visit pos
-                team.visitPosition(pos);
-            }
+//            for(Position pos : visiblePos)
+//            {
+//                Block block = map.at(pos);
+//
+//                //add dynamics
+//                if(!block.isEmpty())
+//                {
+//                    dynamics.add(block.getCell().getDynamicData());
+//                }
+//
+//                //add statics
+//                if(block.getLastChangeTurn() >= team.getLastVisitTurn(pos))
+//                {
+//                    statics.add(block.getStaticData());
+//                }
+//
+//                //add transient
+//
+//
+//                //visit pos
+//                team.visitPosition(pos);
+//            }
 
 
 
@@ -429,26 +428,26 @@ public class MitosisGameLogic implements GameLogic {
 
         //Generate global view outputs
         //TODO fill dynamics, statics and transients
-        for (int row = 0; row < map.getHeight(); row++) {
-            for (int col = 0; col < map.getWidth(); col++) {
-                Block block = map.getBlocks()[row][col];
-
-                //add dynamics
-                if(!block.isEmpty())
-                {
-                    dynamics.add(block.getCell().getDynamicData());
-                }
-
-                //add statics
-                if(block.getLastChangeTurn() + 1 == ctx.getTurn())
-                {
-                    statics.add(block.getStaticData());
-                }
-
-                //add transient
-
-            }
-        }
+//        for (int row = 0; row < map.getHeight(); row++) {
+//            for (int col = 0; col < map.getWidth(); col++) {
+//                Block block = map.getBlocks()[row][col];
+//
+//                //add dynamics
+//                if(!block.isEmpty())
+//                {
+//                    dynamics.add(block.getCell().getDynamicData());
+//                }
+//
+//                //add statics
+//                if(block.getLastChangeTurn() + 1 == ctx.getTurn())
+//                {
+//                    statics.add(block.getStaticData());
+//                }
+//
+//                //add transient
+//
+//            }
+//        }
 
         uiTurnData.setView( ServerConstants.VIEW_GLOBAL);
         uiTurnData.setDynamics(dynamics);
