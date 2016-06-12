@@ -156,7 +156,7 @@ public class OutputController implements Runnable {
     }
 
     /**
-     * Method created to handle the possible overflows occurance in the message queue.
+     * Method created to handle the possible overflows occurrence in the message queue.
      * <p>
      *      TODO: INCOMPLETE - Must be implemented to cache the queue to file.
      * </p>
